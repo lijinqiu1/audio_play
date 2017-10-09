@@ -8,7 +8,7 @@
 #include "rtc.h"
 
 
-
+extern EventGroupHandle_t xEventGroup;
 //*******************************************************************************
 //事件记录线程
 //*******************************************************************************
@@ -37,8 +37,8 @@ void Log_Record_Task(void const * argument)
 		APP_ERROR_CHECK(res);
 	}
 
-	HAL_RTC_GetDate(&hrtc,&dat);
-	res = f_open(&log_file,FA_OPEN_ALWAYS|FA_WRITE);
+	HAL_RTC_GetDate(&hrtc,&dat,RTC_FORMAT_BIN);
+	res = f_open(&log_file,"0:/LOG/x.txt",FA_OPEN_ALWAYS|FA_WRITE);
 	APP_ERROR_CHECK(res);
 
 	for(;;)
