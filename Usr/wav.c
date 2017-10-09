@@ -9,7 +9,6 @@
 #include "gpio.h"
 #include "main.h"
 
-__wavctrl wavctrl;		//WAV控制结构体
 uint8_t wavtransferend=0;	//i2s传输完成标志
 uint8_t wavreceiveend=0;	//i2s传输完成标志
 uint8_t wavwitchrxbuf=0;		//i2sbufx指示标志
@@ -58,7 +57,7 @@ const uint16_t I2S_PSC_TBL[][5]=
 	{19200,393,2,2,0},  	//192Khz采样率
 };
 
-FRESULT wav_decode_init(uint8_t *fname, __wavctrl* wavx)
+static FRESULT wav_decode_init(uint8_t *fname, __wavctrl* wavx)
 {
 	FIL *ftemp;
 	uint8_t *buf;
@@ -142,7 +141,7 @@ error2:
 //size:填充数据量
 //bits:位数(16/24)
 //返回值:读到的数据个数
-uint32_t wav_buffill(uint8_t *buf,uint8_t *tbuf,FIL*file,uint16_t size,uint8_t bits)
+static uint32_t wav_buffill(uint8_t *buf,uint8_t *tbuf,FIL*file,uint16_t size,uint8_t bits)
 {
 	uint16_t readlen=0;
 	uint32_t bread = 0;
@@ -185,13 +184,13 @@ uint32_t wav_buffill(uint8_t *buf,uint8_t *tbuf,FIL*file,uint16_t size,uint8_t b
 //得到当前播放时间
 //fx:文件指针
 //wavx:wav播放控制器
-void wav_get_curtime(FIL*fx,__wavctrl *wavx)
-{
-	long long fpos;
- 	wavx->totsec=wavx->datasize/(wavx->bitrate/8);	//歌曲总长度(单位:秒)
-	fpos=fx->fptr-wavx->datastart; 					//得到当前文件播放到的地方
-	wavx->cursec=fpos*wavx->totsec/wavx->datasize;	//当前播放到第多少秒了?
-}
+//static void wav_get_curtime(FIL*fx,__wavctrl *wavx)
+//{
+//	long long fpos;
+// 	wavx->totsec=wavx->datasize/(wavx->bitrate/8);	//歌曲总长度(单位:秒)
+//	fpos=fx->fptr-wavx->datastart; 					//得到当前文件播放到的地方
+//	wavx->cursec=fpos*wavx->totsec/wavx->datasize;	//当前播放到第多少秒了?
+//}
 
 static void IIS_Init(uint32_t DataFormat,uint32_t AudioFreq)
 {
@@ -402,15 +401,120 @@ static HAL_StatusTypeDef HAL_I2S_Transmit_DMA_MultiBufferStart(I2S_HandleTypeDef
   }
 }
 #endif
+
+//通过时间获取文件名
+//仅限在SD卡保存,不支持FLASH DISK保存
+//组合成:形如"0:RECORDER/REC20120321210633.wav"的文件名
+static void recoder_new_pathname(uint8_t *pname)
+{
+	uint8_t res;
+	uint16_t index=0;
+    FIL fil;
+	while(index<0XFFFF)
+	{
+		sprintf((char*)pname,"0:RECORDER/REC%05d.wav",index);
+		res=f_open(&fil,(const TCHAR*)pname,FA_READ);//尝试打开这个文件
+		if(res==FR_NO_FILE)break;		//该文件名不存在=正是我们需要的.
+		index++;
+        f_close(&fil);
+	}
+}
+
+//初始化WAV头.
+void recoder_wav_init(__WaveHeader* wavhead,uint32_t DataFormat,uint32_t AudioFreq) //初始化WAV头
+{
+	wavhead->riff.ChunkID=0X46464952;	//"RIFF"
+	wavhead->riff.ChunkSize=0;			//还未确定,最后需要计算
+	wavhead->riff.Format=0X45564157; 	//"WAVE"
+	wavhead->fmt.ChunkID=0X20746D66; 	//"fmt "
+	wavhead->fmt.ChunkSize=16; 			//大小为16个字节
+	wavhead->fmt.AudioFormat=0X01; 		//0X01,表示PCM;0X01,表示IMA ADPCM
+ 	wavhead->fmt.NumOfChannels=2;		//双声道
+ 	wavhead->fmt.SampleRate=AudioFreq;		//16Khz采样率 采样速率
+ 	wavhead->fmt.ByteRate=wavhead->fmt.SampleRate*4;//字节速率=采样率*通道数*(ADC位数/8)
+ 	wavhead->fmt.BlockAlign=4;			//块大小=通道数*(ADC位数/8)
+ 	wavhead->fmt.BitsPerSample=DataFormat;		//16位PCM
+   	wavhead->data.ChunkID=0X61746164;	//"data"
+ 	wavhead->data.ChunkSize=0;			//数据大小,还需要计算
+}
+
+//*******************************************************************************
+//获取播放列表 返回音乐文件个数
+//*******************************************************************************
+static uint8_t Get_Play_List(void)
+{
+	DIR recdir;
+	FRESULT res;
+	FILINFO wavfileinfo;
+	uint8_t file_count = 0;
+	res = f_opendir(&recdir,"0:/MUSIC");
+	if (res != FR_OK)
+	{
+		goto error;
+	}
+	while(1)
+	{
+		res = f_readdir(&recdir,&wavfileinfo);
+		if (res != FR_OK)
+		{
+			break;
+		}
+		if (wavfileinfo.fname[0] == 0)
+		{
+			break;
+		}
+		file_count ++ ;
+		app_trace_log("%s\r\n",wavfileinfo.fname);
+	}
+
+error:
+	return file_count;
+}
+
+void Get_Play_Song(uint8_t *fname,uint8_t file_count)
+{
+    DIR recdir;
+	FRESULT res;
+	FILINFO fileinfo;
+	uint32_t number;
+	uint8_t i;
+
+	number = HAL_RNG_GetRandomNumber(&hrng);
+
+	number = number % file_count;
+	res = f_opendir(&recdir,"0:/MUSIC");
+	if (res != FR_OK)
+	{
+		return ;
+	}
+
+	for(i = 0;i < number; i++)
+	{
+		res = f_readdir(&recdir,&fileinfo);
+		if (res != FR_OK)
+		{
+			fname[0] = 0;
+			break;
+		}
+		if (fileinfo.fname[0] == 0)
+		{
+			fname[0] = 0;
+			break;
+		}
+	}
+	strcpy((char*)fname,fileinfo.fname);
+}
+#if 0
 //播放某个WAV文件
 //fname:wav文件路径.
 //返回值:
 //KEY0_PRES:下一曲
 //KEY1_PRES:上一曲
 //其他:错误
-uint8_t wav_play_song(uint8_t* fname)
+static uint8_t wav_play_song(uint8_t* fname)
 {
 	FRESULT res;
+	__wavctrl wavctrl;		//WAV控制结构体
 	uint32_t fillnum;
 	uint32_t ulEventsToProcess;
 	//音频文件句柄
@@ -485,56 +589,8 @@ error2:
 	return res;
 }
 
-//进入PCM 录音模式
-void recoder_enter_rec_mode(uint32_t DataFormat,uint32_t AudioFreq)
-{
-//    WM8978_ADDA_Cfg(0,1);		//开启ADC
-//	WM8978_Input_Cfg(1,0,0);	//开启输入通道(MIC&LINE IN)
-//	WM8978_Output_Cfg(0,1);		//开启BYPASS输出
-//	WM8978_MIC_Gain(46);		//MIC增益设置
-
-    IIS_Init(DataFormat,AudioFreq);
-	
-}
-
-//通过时间获取文件名
-//仅限在SD卡保存,不支持FLASH DISK保存
-//组合成:形如"0:RECORDER/REC20120321210633.wav"的文件名
-void recoder_new_pathname(uint8_t *pname)
-{
-	uint8_t res;
-	uint16_t index=0;
-    FIL fil;
-	while(index<0XFFFF)
-	{
-		sprintf((char*)pname,"0:RECORDER/REC%05d.wav",index);
-		res=f_open(&fil,(const TCHAR*)pname,FA_READ);//尝试打开这个文件
-		if(res==FR_NO_FILE)break;		//该文件名不存在=正是我们需要的.
-		index++;
-        f_close(&fil);
-	}
-}
-
-//初始化WAV头.
-void recoder_wav_init(__WaveHeader* wavhead,uint32_t DataFormat,uint32_t AudioFreq) //初始化WAV头
-{
-	wavhead->riff.ChunkID=0X46464952;	//"RIFF"
-	wavhead->riff.ChunkSize=0;			//还未确定,最后需要计算
-	wavhead->riff.Format=0X45564157; 	//"WAVE"
-	wavhead->fmt.ChunkID=0X20746D66; 	//"fmt "
-	wavhead->fmt.ChunkSize=16; 			//大小为16个字节
-	wavhead->fmt.AudioFormat=0X01; 		//0X01,表示PCM;0X01,表示IMA ADPCM
- 	wavhead->fmt.NumOfChannels=2;		//双声道
- 	wavhead->fmt.SampleRate=AudioFreq;		//16Khz采样率 采样速率
- 	wavhead->fmt.ByteRate=wavhead->fmt.SampleRate*4;//字节速率=采样率*通道数*(ADC位数/8)
- 	wavhead->fmt.BlockAlign=4;			//块大小=通道数*(ADC位数/8)
- 	wavhead->fmt.BitsPerSample=DataFormat;		//16位PCM
-   	wavhead->data.ChunkID=0X61746164;	//"data"
- 	wavhead->data.ChunkSize=0;			//数据大小,还需要计算
-}
-
 //录音程序
-void wav_recorder(void)
+static void wav_recorder(void)
 {
     FRESULT res;
     DIR recdir;
@@ -544,7 +600,8 @@ void wav_recorder(void)
 	//通知
 	uint32_t ulEventsToProcess;
 	__WaveHeader *wavhead=0;
-    while(f_opendir(&recdir,"0:/RECORDER"))//打开录音文件夹
+	//打开录音文件夹，如果没有创建
+    while(f_opendir(&recdir,"0:/RECORDER"))
     {
         res = f_mkdir("0:/RECORDER");
         if (res != FR_OK)
@@ -573,7 +630,7 @@ void wav_recorder(void)
 	//文件头初始化
     recoder_wav_init(wavhead,16,I2S_AUDIOFREQ_16K);
 	//进入录音模式，此时耳机可以听到咪头采集到的音频
-    recoder_enter_rec_mode(16,I2S_AUDIOFREQ_16K);
+	IIS_Init(16,I2S_AUDIOFREQ_16K);
 	WM8978_I2S_Cfg(2,0);		//飞利浦标准,16位数据长度
 	HAL_I2SEx_TransmitReceive_DMA_A(&hi2s2,(uint16_t *)audiodev.i2sbuf1,(uint16_t *)audiodev.i2sbuf2,WAV_I2S_TX_DMA_BUFSIZE/2);
 
@@ -686,7 +743,7 @@ error2:
 }
 
 //同时播放录音函数
-void wav_recorder_play(uint8_t* fname)
+static void wav_recorder_play(uint8_t* fname)
 {
 	FRESULT res;
 	DIR recdir;
@@ -695,6 +752,7 @@ void wav_recorder_play(uint8_t* fname)
 	uint32_t fillnum;
 	uint32_t ulEventsToProcess;
 	__WaveHeader *wavheadrx=0;
+	__wavctrl wavctrl;		//WAV控制结构体
 	while(f_opendir(&recdir,"0:/RECORDER"))//打开录音文件夹
 	{
 		res = f_mkdir("0:/RECORDER");
@@ -877,6 +935,11 @@ void wav_recorder_play(uint8_t* fname)
         goto error1;
     }
 error1:
+	res= f_close(audiodev.file2);
+    if (res != FR_OK)
+    {
+        app_trace_log("%s,%d,error %d\n",__FUNCTION__,__LINE__,res);
+    }
     res= f_close(audiodev.file1);
     if (res != FR_OK)
     {
@@ -893,80 +956,13 @@ error2:
     vPortFree(wavheadrx);
     vPortFree(pname);
 }
-
-//*******************************************************************************
-//获取播放列表 返回音乐文件个数
-//*******************************************************************************
-uint8_t Get_Play_List(void)
-{
-	DIR recdir;
-	FRESULT res;
-	FILINFO wavfileinfo;
-	uint8_t file_count = 0;
-	res = f_opendir(&recdir,"0:/RECORDER");
-	if (res != FR_OK)
-	{
-		goto error;
-	}
-	while(1)
-	{
-		res = f_readdir(&recdir,&wavfileinfo);
-		if (res != FR_OK)
-		{
-			break;
-		}
-		if (wavfileinfo.fname[0] == 0)
-		{
-			break;
-		}
-		file_count ++ ;
-		app_trace_log("%s\r\n",wavfileinfo.fname);
-	}
-
-error:
-	return file_count;
-}
-
-void Get_Play_Song(uint8_t *fname,uint8_t file_count)
-{
-    DIR recdir;
-	FRESULT res;
-	FILINFO fileinfo;
-	uint32_t number;
-	uint8_t i;
-
-	number = HAL_RNG_GetRandomNumber(&hrng);
-	
-	number = number % file_count;
-	res = f_opendir(&recdir,"0:/MUSIC");
-	if (res != FR_OK)
-	{
-		return ;
-	}
-	
-	for(i = 0;i < number; i++)
-	{
-		res = f_readdir(&recdir,&fileinfo);
-		if (res != FR_OK)
-		{
-			fname[0] = 0;
-			break;
-		}
-		if (fileinfo.fname[0] == 0)
-		{
-			fname[0] = 0;
-			break;
-		}
-	}
-	strcpy((char*)fname,fileinfo.fname);
-}
+#endif
 //*******************************************************************************
 //音频播放录音线程
 //*******************************************************************************
 void AudioPlay_Task(void const * argument)
 {
 	//获取music文件夹下音频文件
-	FATFS fs;
 	FRESULT res;
 	EventBits_t xEventGroupValue;
 	DIR recdir;
@@ -984,28 +980,28 @@ void AudioPlay_Task(void const * argument)
 	uint8_t stop_play_record = 0;
 	//wav文件头
 	__WaveHeader *wavheadrx;
-	const EventBits_t xBitsToWaitFor = ( KEY_VOL_UP_BIT |
-	                                     KEY_VOL_DOWN_BIT |
-	                                     KEY_FUN_STOP_BIT |
-	                                     KEY_PLAY_BIT |
-	                                     KEY_RECORD_BIT |
-	                                     KEY_PLAY_AND_RECORD_BIT);
-	const EventBits_t uxAllSyncBits = ( KEY_VOL_UP_BIT |
-										KEY_VOL_DOWN_BIT |
-										KEY_FUN_STOP_BIT |
-										KEY_PLAY_BIT |
-										KEY_RECORD_BIT |
-										KEY_PLAY_AND_RECORD_BIT |
-										KEY_ASK_BIT |
-										KEY_FUN_BLE_BIT);
-	//挂载SD卡
-    res = f_mount(&fs,(const TCHAR*)SD_Path,0);
-    if (res !=FR_OK)
-    {
-    	 goto error2;
-	}
+	__wavctrl wavctrl;		//WAV控制结构体
+	const EventBits_t xBitsToWaitFor = (EVENTS_FUN_STOP_BIT |
+	                                     EVENTS_PLAY_BIT |
+	                                     EVENTS_RECORD_BIT |
+	                                     EVENTS_PLAY_AND_RECORD_BIT);
+
+
+	const EventBits_t uxAllSyncBits = ( EVENTS_VOL_UP_BIT |
+										EVENTS_VOL_DOWN_BIT |
+										EVENTS_FUN_STOP_BIT |
+										EVENTS_PLAY_BIT |
+										EVENTS_RECORD_BIT |
+										EVENTS_PLAY_AND_RECORD_BIT |
+										EVENTS_PLAY_END_BIT |
+										EVENTS_RECORD_BIT |
+										EVENTS_PLAY_AND_RECORD_BIT |
+										EVENTS_ASK_BIT |
+										EVENTS_FUN_BLE_BIT);
+	//获取播放音乐文件
 	file_count = Get_Play_List();
-	while(f_opendir(&recdir,"0:/RECORDER"))//打开录音文件夹
+	//打开录音文件夹，如果没有创建
+	while(f_opendir(&recdir,"0:/RECORDER"))
 	{
 		res = f_mkdir("0:/RECORDER");
 		if (res != FR_OK)
@@ -1013,7 +1009,7 @@ void AudioPlay_Task(void const * argument)
 			app_trace_log("%s,%d,error %d\n",__FUNCTION__,__LINE__,res);
 			goto error2 ;
 		}
-	}	
+	}
     WM8978_Init();
 	//申请播放缓存
 	audiodev.file1=(FIL*)pvPortMalloc(sizeof(FIL));
@@ -1059,11 +1055,11 @@ void AudioPlay_Task(void const * argument)
 						uxAllSyncBits,
 						portMAX_DELAY);
 
-		
-		if((xEventGroupValue & KEY_PLAY_BIT)!=0 || (xEventGroupValue & KEY_PLAY_AND_RECORD_BIT)!=0)
+
+		if((xEventGroupValue & EVENTS_PLAY_BIT)!=0 || (xEventGroupValue & EVENTS_PLAY_AND_RECORD_BIT)!=0)
 		{//播放部分初始化
 			play_begin = 1;
-			//过去随机播放文件名
+			//获取随机播放文件名
 			Get_Play_Song(fname,file_count);
 			//得到文件的信息
 			res = wav_decode_init(fname,&wavctrl);
@@ -1073,22 +1069,22 @@ void AudioPlay_Task(void const * argument)
 				goto error2;
 			}
 			//打开播放文件
-			res=f_open(audiodev.file1,(const TCHAR*)fname,FA_READ);	
+			res=f_open(audiodev.file1,(const TCHAR*)fname,FA_READ);
 			if (res != FR_OK)
 			{
 				app_trace_log("error %s,%d\n",__FUNCTION__,__LINE__);
 				continue;
 			}
 			//跳过播放文件头
-			res = f_lseek(audiodev.file1, wavctrl.datastart);		
+			res = f_lseek(audiodev.file1, wavctrl.datastart);
 			if (res != FR_OK)
 			{
 				app_trace_log("error %s,%d\n",__FUNCTION__,__LINE__);
 				goto error1;
 			}
 		}
-		
-		if((xEventGroupValue & KEY_PLAY_AND_RECORD_BIT)!=0 || (xEventGroupValue & KEY_RECORD_BIT)!=0)
+
+		if((xEventGroupValue & EVENTS_PLAY_AND_RECORD_BIT)!=0 || (xEventGroupValue & EVENTS_RECORD_BIT)!=0)
 		{//录音部分初始化
 			record_begin = 1;
 			//获取录音文件名
@@ -1111,9 +1107,9 @@ void AudioPlay_Task(void const * argument)
 				goto error1;
 			}
 		}
-		
-		if ((xEventGroupValue & KEY_PLAY_BIT)!=0 || (xEventGroupValue & KEY_PLAY_AND_RECORD_BIT)!=0 ||
-			(xEventGroupValue & KEY_RECORD_BIT)!=0)
+
+		if ((xEventGroupValue & EVENTS_PLAY_BIT)!=0 || (xEventGroupValue & EVENTS_PLAY_AND_RECORD_BIT)!=0 ||
+			(xEventGroupValue & EVENTS_RECORD_BIT)!=0)
 		{//初始化公共部分
 			if(wavctrl.bps==16)
 			{
@@ -1140,13 +1136,13 @@ void AudioPlay_Task(void const * argument)
 			//开始录音播放
 		    rec_sta=1;
 		}
-		
-		if ((xEventGroupValue & KEY_FUN_STOP_BIT) != 0)
+
+		if ((xEventGroupValue & EVENTS_FUN_STOP_BIT) != 0)
 		{//停止播放
 			stop_play_record = 1;
 			goto end;
 		}
-		
+
 		//开始录音播放
 		if ((play_begin == 1) || (record_begin == 1))
 		{	//等待中断
@@ -1156,7 +1152,7 @@ void AudioPlay_Task(void const * argument)
 				if(fillnum!=WAV_I2S_TX_DMA_BUFSIZE/2)//播放结束?
 				{
 					app_trace_log("play end\n");
-					stop_play_record = 1; 
+					stop_play_record = 1;
 					goto end;
 				}
 				if (wavrxtxflag)
@@ -1207,18 +1203,21 @@ error1:
 				if (record_begin == 1)
 				{
 				    wavheadrx->riff.ChunkSize=wavsize+36;		//整个文件的大小-8;
-				    wavheadrx->data.ChunkSize=wavsize;		//数据大小
-				    res= f_lseek(audiodev.file2,0);						//偏移到文件头.
+				    wavheadrx->data.ChunkSize=wavsize;		    //数据大小
+				    res= f_lseek(audiodev.file2,0);			    //偏移到文件头.
 				    if (res != FR_OK)
 				    {
 				        app_trace_log("%s,%d,error %d\n",__FUNCTION__,__LINE__,res);
-				        goto error1;
 				    }
 				    res= f_write(audiodev.file2,(const void*)wavheadrx,sizeof(__WaveHeader),&bw);//写入头数据
 				    if (res != FR_OK)
 				    {
 				        app_trace_log("%s,%d,error %d\n",__FUNCTION__,__LINE__,res);
-				        goto error1;
+				    }
+				    res= f_close(audiodev.file2);
+					if (res != FR_OK)
+				    {
+				        app_trace_log("%s,%d,error %d\n",__FUNCTION__,__LINE__,res);
 				    }
 				}
 				if (play_begin == 1)
