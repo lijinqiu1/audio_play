@@ -7,9 +7,14 @@
 #include "rtc.h"
 #include "rtc.h"
 
+<<<<<<< HEAD
 //队列
 QueueHandle_t xQueueLog;
 
+=======
+
+extern EventGroupHandle_t xEventGroup;
+>>>>>>> 141c260505ccf0862c751e142a69b947af2288f0
 //*******************************************************************************
 //事件记录线程
 //负责写入文件log
@@ -33,8 +38,12 @@ void Log_Record_Task(void const * argument)
 	}
 
 	HAL_RTC_GetDate(&hrtc,&dat,RTC_FORMAT_BIN);
+<<<<<<< HEAD
 	sprintf(fname,"LOG-%d-%d-%d.txt",dat.Year,dat.Month,dat.Date);
 	res = f_open(&log_file,fname,FA_OPEN_ALWAYS|FA_WRITE);
+=======
+	res = f_open(&log_file,"0:/LOG/x.txt",FA_OPEN_ALWAYS|FA_WRITE);
+>>>>>>> 141c260505ccf0862c751e142a69b947af2288f0
 	APP_ERROR_CHECK(res);
 
 	for(;;)
