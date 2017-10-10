@@ -50,22 +50,22 @@ uint8_t WM8978_Init(void)
 	WM8978_Write_Reg(14,1<<3);	//R14,ADC 128x采样率
 
 ////放音设置
-//	WM8978_ADDA_Cfg(1,0);										//开启DAC
+//	WM8978_ADDA_Cfg(1,0);									//开启DAC
 //	WM8978_Input_Cfg(0,0,0);								//关闭输入通道
 //	WM8978_Output_Cfg(1,0);									//开启DAC输出
 ////录音设置
-//	WM8978_ADDA_Cfg(0,1);										//开启ADC
+//	WM8978_ADDA_Cfg(0,1);									//开启ADC
 //	WM8978_Input_Cfg(1,1,0);								//开启输入通道(MIC&LINE IN)
 //	WM8978_Output_Cfg(1,0);									//开启BYPASS输出
-//	WM8978_MIC_Gain(46);										//MIC增益设置
+//	WM8978_MIC_Gain(46);									//MIC增益设置
 //	WM8978_HPvol_Set(25,25);
 //	WM8978_SPKvol_Set(30);//50
-    
+
  //同时录音放音设置
-    WM8978_ADDA_Cfg(1,1);										//开启DAC
+    WM8978_ADDA_Cfg(1,1);									//开启DAC
 	WM8978_Input_Cfg(1,1,0);								//开启输入通道(MIC&LINE IN)
 	WM8978_Output_Cfg(1,0);									//开启DAC输出
-	WM8978_MIC_Gain(46);										//MIC增益设置
+	WM8978_MIC_Gain(46);									//MIC增益设置
 	WM8978_HPvol_Set(25,25);
 	WM8978_SPKvol_Set(50);//50
 	return 0;

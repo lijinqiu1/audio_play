@@ -52,15 +52,16 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */
-#include "wav.h"
+#include "audio.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
 osThreadId defaultTaskHandle;
 
 /* USER CODE BEGIN Variables */
-//osThreadId FatfsTaskHandle;
 EventGroupHandle_t xEventGroup;
+
+extern QueueHandle_t xQueueLog;
 
 extern osThreadId audioplayTaskHandle;
 /* USER CODE END Variables */
@@ -115,10 +116,15 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(audioplayTask,AudioPlay_Task,osPriorityHigh,0,1024);
   audioplayTaskHandle = osThreadCreate(osThread(audioplayTask),NULL);
   /*log 记录线程*/
+
+  /*音频控制线程*/
+
+  /*事件控制线程*/
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
+  xQueueLog = xQueueCreate(QUEUE_LOG_ITEM_LENGTH,QUEUE_LOG_ITEM_SIZE);
   /* USER CODE END RTOS_QUEUES */
 }
 

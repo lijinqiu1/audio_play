@@ -99,11 +99,11 @@
 #define REF_EN_PC4_Pin GPIO_PIN_4
 #define REF_EN_PC4_GPIO_Port GPIOC
 /* USER CODE BEGIN Private defines */
-
+/* EVENTS GROUP */
 #define EVENTS_VOL_UP_BIT                    (1UL <<  0UL)
 #define EVENTS_VOL_DOWN_BIT                  (1UL <<  1UL)
 #define EVENTS_ASK_BIT                       (1UL <<  2UL)
-#define EVENTS_FUN_BLE_BIT                   (1UL <<  3UL)
+#define EVENTS_FUN_BLE_OPEN_BIT              (1UL <<  3UL)
 #define EVENTS_FUN_STOP_BIT                  (1UL <<  4UL)
 #define EVENTS_PLAY_BIT                      (1UL <<  5UL)
 #define EVENTS_RECORD_BIT                    (1UL <<  6UL)
@@ -111,8 +111,19 @@
 #define EVENTS_PLAY_END_BIT                  (1UL <<  8UL)
 #define EVENTS_RECORD_END_BIT                (1UL <<  9UL)
 #define EVENTS_PLAY_AND_RECORD_END_BIT       (1UL << 10UL)
+#define EVENTS_FUN_BLE_CLOSE_BIT             (1UL << 11UL)
 
+/* QUEUE */
+#define QUEUE_LOG_ITEM_SIZE                   40
+#define QUEUE_LOG_ITEM_LENGTH                 10
+/* file dir */
 
+#define MUSIC_PATH              "0:/MUSIC/"
+#define RECORD_PATH             "0:/RECORD/"
+#define LOG_PATH                "0:/LOG/"
+
+//ÅÐ¶Ï°´¼ü¹¤×÷×´Ì¬
+extern uint8_t key_work_status;
 
 void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name);
 

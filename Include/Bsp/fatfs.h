@@ -58,7 +58,7 @@
 #include "sd_diskio.h" /* defines SD_Driver as external */
 
 /* USER CODE BEGIN Includes */
-#include "wav.h"
+#include "audio.h"
 #include "wm8978.h"
 /* USER CODE END Includes */
 

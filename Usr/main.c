@@ -68,6 +68,9 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
+//ÅÐ¶Ï°´¼ü¹¤×÷×´Ì¬
+uint8_t key_work_status = 0;
+
 
 /* USER CODE END PV */
 
