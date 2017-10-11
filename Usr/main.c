@@ -61,6 +61,7 @@
 #include "main.h"
 /* USER CODE BEGIN Includes */
 #include "myiic.h"
+#include "usb_device.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -69,6 +70,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 //判断按键工作状态
+//0待机，1工作
 uint8_t key_work_status = 0;
 
 
@@ -125,6 +127,7 @@ void app_error_init(void)
 		if (res != FR_OK)
 			_Error_Handler(__FILE__, __LINE__);;
 	}
+	f_closedir(&recdir);
 #endif
 }
 /* USER CODE END PFP */
@@ -165,6 +168,7 @@ int main(void)
   MX_RTC_Init();
   MX_I2S2_Init();
   MX_RNG_Init();
+  MX_USB_DEVICE_Init();
 //  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
   IIC_Init();

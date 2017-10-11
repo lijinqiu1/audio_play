@@ -40,9 +40,9 @@ uint8_t WM8978_Init(void)
 	res=WM8978_Write_Reg(0,0);	//软复位WM8978
 	if(res)return 1;			//发送指令失败,WM8978异常
 	//以下为通用设置
-	WM8978_Write_Reg(1,0X1B);	//R1,MICEN设置为1(MIC使能),BIASEN设置为1(模拟器工作),VMIDSEL[1:0]设置为:11(5K)
+	WM8978_Write_Reg(1,0XDB);	//R1,OUT3\4MIXEN设置为1使能,MICEN设置为1(MIC使能),BIASEN设置为1(模拟器工作),VMIDSEL[1:0]设置为:11(5K)
 	WM8978_Write_Reg(2,0X1B0);	//R2,ROUT1,LOUT1输出使能(耳机可以工作),BOOSTENR,BOOSTENL使能
-	WM8978_Write_Reg(3,0X6C);	//R3,LOUT2,ROUT2输出使能(喇叭工作),RMIX,LMIX使能
+	WM8978_Write_Reg(3,0X1EC);	//R3,LOUT2,ROUT2输出使能(喇叭工作),RMIX,LMIX使能,OUT3/4使能
 	WM8978_Write_Reg(6,0);		//R6,MCLK由外部提供
 	WM8978_Write_Reg(43,1<<4);	//R43,INVROUT2反向,驱动喇叭
 	WM8978_Write_Reg(47,1<<8);	//R47设置,PGABOOSTL,左通道MIC获得20倍增益
@@ -65,7 +65,7 @@ uint8_t WM8978_Init(void)
 
  //同时录音放音设置
     WM8978_ADDA_Cfg(1,1);									//开启DAC
-	WM8978_Input_Cfg(1,1,0);								//开启输入通道(MIC&LINE IN)
+	WM8978_Input_Cfg(1,0,0);								//开启输入通道(MIC&LINE IN)
 	WM8978_Output_Cfg(1,0);									//开启DAC输出
 	WM8978_MIC_Gain(46);									//MIC增益设置
 	WM8978_HPvol_Set(volume,volume);
@@ -165,7 +165,12 @@ void WM8978_Output_Cfg(uint8_t dacen,uint8_t bpsen)
 {
 	uint16_t regval=0;
 	if(dacen)
+	{
         regval|=1<<0;	//DAC输出使能
+        //使能OUT3/OUT4
+		WM8978_Write_Reg(56,regval);//R56设置
+		WM8978_Write_Reg(57,regval);//R57设置
+	}
 	if(bpsen)
 	{
 		regval|=1<<1;		//BYPASS使能
@@ -173,7 +178,9 @@ void WM8978_Output_Cfg(uint8_t dacen,uint8_t bpsen)
 	}
 	WM8978_Write_Reg(50,regval);//R50设置
 	WM8978_Write_Reg(51,regval);//R51设置
+
 }
+
 //WM8978 MIC增益设置(不包括BOOST的20dB,MIC-->ADC输入部分的增益)
 //gain:0~63,对应-12dB~35.25dB,0.75dB/Step
 void WM8978_MIC_Gain(uint8_t gain)

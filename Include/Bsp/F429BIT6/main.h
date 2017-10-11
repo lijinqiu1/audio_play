@@ -76,10 +76,8 @@
 #define MODE_BT_PB10_GPIO_Port GPIOB
 #define RESET_BT_PB11_Pin GPIO_PIN_11
 #define RESET_BT_PB11_GPIO_Port GPIOB
-#define RESET_BT_PG7_Pin GPIO_PIN_7
-#define RESET_BT_PG7_GPIO_Port GPIOG
 
-#define KEY_FUN_PG12_Pin GPIO_PIN_7         /*播放模式: 停止\待机模式:蓝牙耳机切换*/
+#define KEY_FUN_PG12_Pin GPIO_PIN_7         /*待机模式:蓝牙耳机切换*/
 #define KEY_FUN_PG12_GPIO_Port GPIOD
 
 #define KEY_ASK_PG10_Pin GPIO_PIN_10        /*播放模式:报告\待机模式:播放录音*/
@@ -90,6 +88,9 @@
 
 #define KEY_VOL_DOWN_PG11_Pin GPIO_PIN_11   /*播放模式:音量- \待机模式:录音播放*/
 #define KEY_VOL_DOWN_PG11_GPIO_Port GPIOG
+
+#define KEY_WAKE_UP_PA0_Pin GPIO_PIN_0         /*蓝牙配对*/
+#define KEY_WAKE_UP_PA0_GPIO_Port GPIOA
 
 #define IIC_SCLK_PB8_Pin GPIO_PIN_8
 #define IIC_SCLK_PB8_GPIO_Port GPIOB
@@ -103,15 +104,15 @@
 #define EVENTS_VOL_UP_BIT                    (1UL <<  0UL)
 #define EVENTS_VOL_DOWN_BIT                  (1UL <<  1UL)
 #define EVENTS_ASK_BIT                       (1UL <<  2UL)
-#define EVENTS_FUN_BLE_OPEN_BIT              (1UL <<  3UL)
-#define EVENTS_FUN_STOP_BIT                  (1UL <<  4UL)
-#define EVENTS_PLAY_BIT                      (1UL <<  5UL)
-#define EVENTS_RECORD_BIT                    (1UL <<  6UL)
-#define EVENTS_PLAY_AND_RECORD_BIT           (1UL <<  7UL)
-#define EVENTS_PLAY_END_BIT                  (1UL <<  8UL)
-#define EVENTS_RECORD_END_BIT                (1UL <<  9UL)
-#define EVENTS_PLAY_AND_RECORD_END_BIT       (1UL << 10UL)
-#define EVENTS_FUN_BLE_CLOSE_BIT             (1UL << 11UL)
+#define EVENTS_FUN_BLE_CHANGE_BIT            (1UL <<  3UL)
+#define EVENTS_FUN_BLE_PAIR_BIT              (1UL <<  4UL)
+#define EVENTS_FUN_STOP_BIT                  (1UL <<  5UL)
+#define EVENTS_PLAY_BIT                      (1UL <<  6UL)
+#define EVENTS_RECORD_BIT                    (1UL <<  7UL)
+#define EVENTS_PLAY_AND_RECORD_BIT           (1UL <<  8UL)
+#define EVENTS_PLAY_END_BIT                  (1UL <<  9UL)
+#define EVENTS_RECORD_END_BIT                (1UL << 10UL)
+#define EVENTS_PLAY_AND_RECORD_END_BIT       (1UL << 11UL)
 
 /* QUEUE */
 #define QUEUE_LOG_ITEM_SIZE                   40

@@ -317,7 +317,10 @@ void OTG_HS_IRQHandler(void)
 
   /* USER CODE END OTG_HS_IRQn 1 */
 }
-
+void EXTI0_IRQHandler(void)
+{
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
+}
 /**
 * @brief This function handles EXTI line[9:5] interrupts.
 */
@@ -327,6 +330,7 @@ void EXTI9_5_IRQHandler(void)
 
   /* USER CODE END EXTI9_5_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_7);
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_9);
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
 

@@ -62,15 +62,6 @@ void MX_FATFS_Init(void)
 
   /* USER CODE BEGIN Init */
   /* additional user code for init */
-  FRESULT res;
-  FATFS fs;
-  //π“‘ÿSDø®
-  res = f_mount(&fs,(const TCHAR*)SD_Path,0);
-  if (res !=FR_OK)
-  {
-	 app_trace_log("err %s,%d\n",__FUNCTION__,__LINE__);
-	 while(1);
-  }
   /* USER CODE END Init */
 }
 
