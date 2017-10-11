@@ -393,11 +393,27 @@ void AudioController_Task(void const * argument)
 											   portMAX_DELAY);
 		if((xEventGroupValue&EVENTS_VOL_UP_BIT)!=0)
 		{
+			volume+=5;
+			if (volume > 63)
+			{
+				volume = 63;
+			}
+			WM8978_HPvol_Set(volume,volume);
+			WM8978_SPKvol_Set(volume);
+			//¼ÇÂ¼log
 			sprintf(log,"volume+");
 			send_log(log);
 		}
 		if((xEventGroupValue&EVENTS_VOL_DOWN_BIT)!=0)
 		{
+			volume -= 5;
+			if(volume < 0)
+			{
+				volume = 0;
+			}
+			WM8978_HPvol_Set(volume,volume);
+			WM8978_SPKvol_Set(volume);
+			//¼ÇÂ¼log
 			sprintf(log,"volume-");
 			send_log(log);
 		}

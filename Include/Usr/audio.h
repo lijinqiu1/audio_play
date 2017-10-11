@@ -106,13 +106,9 @@ typedef __packed struct
 							//bit1:0,结束播放;1,开启播放
 }__audiodev;
 
-FRESULT wav_decode_init(uint8_t* fname,__wavctrl* wavx);
-uint32_t wav_buffill(uint8_t *buf,uint8_t *tbuf,FIL*file,uint16_t size,uint8_t bits);
-void wav_i2s_dma_tx_callback(void);
-uint8_t wav_play_song(uint8_t* fname);
-void wav_recorder_play(uint8_t* fname);
-void wav_recorder(void);
 void AudioPlay_Task(void const * argument);
+void AudioController_Task(void const * argument);
+
 #endif
 
 

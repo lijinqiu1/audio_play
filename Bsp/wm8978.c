@@ -12,6 +12,8 @@
 //Copyright(C) 广州市星翼电子科技有限公司 2014-2024
 //All rights reserved
 //////////////////////////////////////////////////////////////////////////////////
+//记录音量(0~63)
+int8_t volume = 40;
 
 //WM8978寄存器值缓存区(总共58个寄存器,0~57),占用116字节内存
 //因为WM8978的IIC操作不支持读操作,所以在本地保存所有寄存器值
@@ -66,8 +68,8 @@ uint8_t WM8978_Init(void)
 	WM8978_Input_Cfg(1,1,0);								//开启输入通道(MIC&LINE IN)
 	WM8978_Output_Cfg(1,0);									//开启DAC输出
 	WM8978_MIC_Gain(46);									//MIC增益设置
-	WM8978_HPvol_Set(25,25);
-	WM8978_SPKvol_Set(50);//50
+	WM8978_HPvol_Set(volume,volume);
+	WM8978_SPKvol_Set(volume);//50
 	return 0;
 }
 //WM8978写寄存器
