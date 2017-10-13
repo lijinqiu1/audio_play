@@ -555,7 +555,6 @@ void AudioPlay_Task(void const * argument)
 
 		if((xEventGroupValue & EVENTS_PLAY_BIT)!=0 || (xEventGroupValue & EVENTS_PLAY_AND_RECORD_BIT)!=0)
 		{//播放部分初始化
-			play_begin = 1;
 			//获取随机播放文件名
 			Get_Play_Song(pname,file_count);
 			//得到文件的信息
@@ -584,11 +583,12 @@ void AudioPlay_Task(void const * argument)
 			//将播放信息发送给log线程
 			sprintf(log,"playing-%s",(char*)pname);
 			send_log(log);
+			//播放标志位置位
+			play_begin = 1;
 		}
 
 		if((xEventGroupValue & EVENTS_PLAY_AND_RECORD_BIT)!=0 || (xEventGroupValue & EVENTS_RECORD_BIT)!=0)
 		{//录音部分初始化
-			record_begin = 1;
 			//获取录音文件名
 		    recoder_new_pathname(rname);
 		    app_trace_log("recorder: %s\n",rname);
@@ -616,6 +616,8 @@ void AudioPlay_Task(void const * argument)
 			//将录音信息发送给log线程
 			sprintf(log,"recording-%s",(char*)rname);
 			send_log(log);
+			//录音标志位置位
+			record_begin = 1;
 		}
 
 		if ((xEventGroupValue & EVENTS_PLAY_BIT)!=0 || (xEventGroupValue & EVENTS_PLAY_AND_RECORD_BIT)!=0 ||
