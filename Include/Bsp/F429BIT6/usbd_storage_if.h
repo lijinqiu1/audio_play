@@ -1,8 +1,7 @@
 /**
   ******************************************************************************
-  * @file           : usbd_conf.h
-  * @version        : v1.0_Cube
-  * @brief          : Header for usbd_conf file.
+  * @file           : usbd_storage_if.h
+  * @brief          : header file for the usbd_storage_if.c file
   ******************************************************************************
   * This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
@@ -46,143 +45,93 @@
   *
   ******************************************************************************
 */
+
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __USBD_CONF__H__
-#define __USBD_CONF__H__
+
+#ifndef __USBD_STORAGE_IF_H_
+#define __USBD_STORAGE_IF_H_
 #ifdef __cplusplus
  extern "C" {
 #endif
-/* Includes ------------------------------------------------------------------*/
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "stm32f4xx.h"
-#include "stm32f4xx_hal.h"
 
-/** @addtogroup USBD_OTG_DRIVER
+/* Includes ------------------------------------------------------------------*/
+#include "usbd_msc.h"
+/* USER CODE BEGIN INCLUDE */
+/* USER CODE END INCLUDE */
+
+/** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
   * @{
   */
   
-/** @defgroup USBD_CONF
-  * @brief usb otg low level driver configuration file
+/** @defgroup USBD_STORAGE
+  * @brief header file for the USBD_STORAGE.c file
   * @{
   */ 
 
-/** @defgroup USBD_CONF_Exported_Defines
+/** @defgroup USBD_STORAGE_Exported_Defines
   * @{
   */ 
+/* USER CODE BEGIN EXPORTED_DEFINES */
+/* USER CODE END  EXPORTED_DEFINES */
 
-/*---------- -----------*/
-#define USBD_MAX_NUM_INTERFACES     3
-/*---------- -----------*/
-#define USBD_MAX_NUM_CONFIGURATION     1
-/*---------- -----------*/
-#define USBD_MAX_STR_DESC_SIZ     512
-/*---------- -----------*/
-#define USBD_SUPPORT_USER_STRING     0
-/*---------- -----------*/
-#define USBD_DEBUG_LEVEL     0
-/*---------- -----------*/
-#define USBD_LPM_ENABLED     0
-/*---------- -----------*/
-#define USBD_SELF_POWERED     0
-/*---------- -----------*/
-#define MSC_MEDIA_PACKET     512
-
-/****************************************/
-/* #define for FS and HS identification */
-#define DEVICE_FS 		0
-#define DEVICE_HS 		1
-
-/** @defgroup USBD_Exported_Macros
-  * @{
-  */ 
-
- /* Memory management macros */   
-#define USBD_malloc               malloc
-#define USBD_free                 free
-#define USBD_memset               memset
-#define USBD_memcpy               memcpy
-
-#define USBD_Delay   HAL_Delay
-    
- /* DEBUG macros */  
-
-#if (USBD_DEBUG_LEVEL > 0)
-#define  USBD_UsrLog(...)   printf(__VA_ARGS__);\
-                            printf("\n");
-#else
-#define USBD_UsrLog(...)   
-#endif 
-                            
-                            
-#if (USBD_DEBUG_LEVEL > 1)
-
-#define  USBD_ErrLog(...)   printf("ERROR: ") ;\
-                            printf(__VA_ARGS__);\
-                            printf("\n");
-#else
-#define USBD_ErrLog(...)   
-#endif 
-                            
-                            
-#if (USBD_DEBUG_LEVEL > 2)                         
-#define  USBD_DbgLog(...)   printf("DEBUG : ") ;\
-                            printf(__VA_ARGS__);\
-                            printf("\n");
-#else
-#define USBD_DbgLog(...)                         
-#endif
-                            
-/**
-  * @}
-  */ 
- 
-    
-    
 /**
   * @}
   */ 
 
-/** @defgroup USBD_CONF_Exported_Types
+/** @defgroup USBD_STORAGE_Exported_Types
   * @{
-  */ 
+  */  
+/* USER CODE BEGIN EXPORTED_TYPES */
+/* USER CODE END  EXPORTED_TYPES */
+
 /**
   * @}
   */ 
 
-/** @defgroup USBD_CONF_Exported_Macros
+/** @defgroup USBD_STORAGE_Exported_Macros
   * @{
   */ 
+/* USER CODE BEGIN EXPORTED_MACRO */
+/* USER CODE END  EXPORTED_MACRO */
+
 /**
   * @}
   */ 
 
-/** @defgroup USBD_CONF_Exported_Variables
+/** @defgroup USBD_STORAGE_Exported_Variables
   * @{
   */ 
+  extern USBD_StorageTypeDef  USBD_Storage_Interface_fops_HS;
+
+/* USER CODE BEGIN EXPORTED_VARIABLES */
+/* USER CODE END  EXPORTED_VARIABLES */
+
 /**
   * @}
   */ 
 
-/** @defgroup USBD_CONF_Exported_FunctionsPrototype
+/** @defgroup USBD_STORAGE_Exported_FunctionsPrototype
   * @{
   */ 
+
+/* USER CODE BEGIN EXPORTED_FUNCTIONS */
+/* USER CODE END  EXPORTED_FUNCTIONS */
 /**
   * @}
   */ 
+
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+  */ 
+  
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __USBD_CONF__H__ */
+#endif /* __USBD_STORAGE_IF_H */
 
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-  */ 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-

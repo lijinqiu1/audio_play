@@ -100,7 +100,7 @@
 /** @defgroup USBD_AUDIO_IF_Exported_Variables
   * @{
   */ 
-extern USBD_CDC_ItfTypeDef  USBD_Interface_fops_HS;
+extern USBD_CDC_ItfTypeDef  USBD_CDC_Interface_fops_HS;
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
 /* USER CODE END EXPORTED_VARIABLES */

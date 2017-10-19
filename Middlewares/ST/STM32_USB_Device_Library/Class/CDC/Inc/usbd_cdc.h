@@ -49,8 +49,8 @@
 /** @defgroup usbd_cdc_Exported_Defines
   * @{
   */ 
-#define CDC_IN_EP                                   0x81  /* EP1 for data IN */
-#define CDC_OUT_EP                                  0x01  /* EP1 for data OUT */
+#define CDC_IN_EP                                   0x83 /* EP1 for data IN */
+#define CDC_OUT_EP                                  0x03  /* EP1 for data OUT */
 #define CDC_CMD_EP                                  0x82  /* EP2 for CDC commands */
 
 /* CDC Endpoints parameters: you can fine tune these values depending on the needed baudrates and performance. */

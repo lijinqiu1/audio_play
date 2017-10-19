@@ -75,8 +75,8 @@
 /* USER CODE BEGIN PRIVATE_DEFINES */
 /* Define size for the receive and transmit buffer over CDC */
 /* It's up to user to redefine and/or remove those define */
-#define APP_RX_DATA_SIZE  2048
-#define APP_TX_DATA_SIZE  2048
+#define APP_RX_DATA_SIZE  4
+#define APP_TX_DATA_SIZE  4
 /* USER CODE END PRIVATE_DEFINES */
 /**
   * @}
@@ -138,7 +138,7 @@ static int8_t CDC_Receive_HS  (uint8_t* pbuf, uint32_t *Len);
   */ 
   
 
-USBD_CDC_ItfTypeDef USBD_Interface_fops_HS = 
+USBD_CDC_ItfTypeDef USBD_CDC_Interface_fops_HS = 
 {
   CDC_Init_HS,
   CDC_DeInit_HS,

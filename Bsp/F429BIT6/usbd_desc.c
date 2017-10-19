@@ -71,14 +71,14 @@
 /** @defgroup USBD_DESC_Private_Defines
   * @{
   */ 
-#define USBD_VID     1155
+#define USBD_VID     /*1155*/0x283
 #define USBD_LANGID_STRING     1033
-#define USBD_MANUFACTURER_STRING     "STMicroelectronics"
-#define USBD_PID_HS     22336
-#define USBD_PRODUCT_STRING_HS     "STM32 Virtual ComPort"
+#define USBD_MANUFACTURER_STRING     "SABER"
+#define USBD_PID_HS     /*22336*/0x5720
+#define USBD_PRODUCT_STRING_HS     "SABER COMPOSITE"
 #define USBD_SERIALNUMBER_STRING_HS     "00000000001A"
-#define USBD_CONFIGURATION_STRING_HS     "CDC Config"
-#define USBD_INTERFACE_STRING_HS     "CDC Interface"
+#define USBD_CONFIGURATION_STRING_HS     "COMPOSITE Config"
+#define USBD_INTERFACE_STRING_HS     "COMPOSITE Interface"
 
 #define USB_SIZ_BOS_DESC            0x0C
 
@@ -146,9 +146,9 @@ __ALIGN_BEGIN uint8_t USBD_HS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
 #endif
 
     0x02,
-    0x02,                        /*bDeviceClass*/
+    0xEF,                       /*bDeviceClass*/
     0x02,                       /*bDeviceSubClass*/
-    0x00,                       /*bDeviceProtocol*/
+    0x01,                       /*bDeviceProtocol*/
     USB_MAX_EP0_SIZE,          /*bMaxPacketSize*/
     LOBYTE(USBD_VID),           /*idVendor*/
     HIBYTE(USBD_VID),           /*idVendor*/
