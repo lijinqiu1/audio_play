@@ -58,6 +58,49 @@
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
+#if defined(F429_BIT6)
+#define KEY_Pin GPIO_PIN_8
+#define KEY_GPIO_Port GPIOI
+#define FLASH_CS_Pin GPIO_PIN_3
+#define FLASH_CS_GPIO_Port GPIOG
+#define FLASH_SCK_Pin GPIO_PIN_3
+#define FLASH_SCK_GPIO_Port GPIOB
+#define FLASH_MISO_Pin GPIO_PIN_4
+#define FLASH_MISO_GPIO_Port GPIOB
+#define FLASH_MOSI_Pin GPIO_PIN_5
+#define FLASH_MOSI_GPIO_Port GPIOB
+
+#define PAIR_BT_PB1_Pin GPIO_PIN_1
+#define PAIR_BT_PB1_GPIO_Port GPIOB
+#define MODE_BT_PB10_Pin GPIO_PIN_10
+#define MODE_BT_PB10_GPIO_Port GPIOB
+#define RESET_BT_PB11_Pin GPIO_PIN_11
+#define RESET_BT_PB11_GPIO_Port GPIOB
+
+#define KEY_FUN_PG12_Pin GPIO_PIN_7         /*待机模式:蓝牙耳机切换*/
+#define KEY_FUN_PG12_GPIO_Port GPIOD
+
+#define KEY_ASK_PG10_Pin GPIO_PIN_10        /*播放模式:报告\待机模式:播放录音*/
+#define KEY_ASK_PG10_GPIO_Port GPIOG
+
+#define KEY_VOL_UP_PG9_Pin GPIO_PIN_9       /*播放模式:音量+ \待机模式:随机播放*/
+#define KEY_VOL_UP_PG9_GPIO_Port GPIOG
+
+#define KEY_VOL_DOWN_PG11_Pin GPIO_PIN_11   /*播放模式:音量- \待机模式:录音播放*/
+#define KEY_VOL_DOWN_PG11_GPIO_Port GPIOG
+
+#define KEY_WAKE_UP_PA0_Pin GPIO_PIN_0         /*蓝牙配对*/
+#define KEY_WAKE_UP_PA0_GPIO_Port GPIOA
+
+#define IIC_SCLK_PB8_Pin GPIO_PIN_8
+#define IIC_SCLK_PB8_GPIO_Port GPIOB
+#define IIC_SDA_PB9_Pin GPIO_PIN_9
+#define IIC_SDA_PB9_GPIO_Port GPIOB
+
+#define REF_EN_PC4_Pin GPIO_PIN_4
+#define REF_EN_PC4_GPIO_Port GPIOC
+
+#elif defined(F429_ZET6)
 
 #define KEY_Pin GPIO_PIN_8
 #define KEY_GPIO_Port GPIOI
@@ -99,6 +142,8 @@
 
 #define REF_EN_PC4_Pin GPIO_PIN_4
 #define REF_EN_PC4_GPIO_Port GPIOC
+
+#endif
 /* USER CODE BEGIN Private defines */
 /* EVENTS GROUP */
 #define EVENTS_VOL_UP_BIT                    (1UL <<  0UL)

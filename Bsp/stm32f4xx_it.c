@@ -48,10 +48,14 @@ extern DMA_HandleTypeDef hdma_sdio_tx;
 extern SD_HandleTypeDef hsd;
 extern UART_HandleTypeDef huart1;
 extern TIM_HandleTypeDef htim6;
+#if defined(F429_BIT6)
 extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
+#elif defined(F429_ZET6)
+extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
+#endif
 extern TIM_HandleTypeDef htim2;
 /******************************************************************************/
-/*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
+/*            Cortex-M4 Processor Interruption and Exception Handlers         */
 /******************************************************************************/
 
 /**
@@ -276,6 +280,7 @@ void DMA1_Stream4_IRQHandler(void)
 
   /* USER CODE END DMA1_Stream4_IRQn 1 */
 }
+#if defined(F429_BIT6)
 /**
 * @brief This function handles USB On The Go HS End Point 1 Out global interrupt.
 */
@@ -317,6 +322,21 @@ void OTG_HS_IRQHandler(void)
 
   /* USER CODE END OTG_HS_IRQn 1 */
 }
+#elif defined(F429_ZET6)
+/**
+* @brief This function handles USB On The Go FS global interrupt.
+*/
+void OTG_FS_IRQHandler(void)
+{
+  /* USER CODE BEGIN OTG_FS_IRQn 0 */
+
+  /* USER CODE END OTG_FS_IRQn 0 */
+  HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
+  /* USER CODE BEGIN OTG_FS_IRQn 1 */
+
+  /* USER CODE END OTG_FS_IRQn 1 */
+}
+#endif
 void EXTI0_IRQHandler(void)
 {
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);

@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * @file           : usbd_conf.h
+  * @file           : USB_DEVICE
   * @version        : v1.0_Cube
-  * @brief          : Header for usbd_conf file.
+  * @brief          : Header for usb_device file.
   ******************************************************************************
   * This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
@@ -47,140 +47,38 @@
   ******************************************************************************
 */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __USBD_CONF__H__
-#define __USBD_CONF__H__
+#ifndef __usb_device_H
+#define __usb_device_H
 #ifdef __cplusplus
  extern "C" {
 #endif
+
 /* Includes ------------------------------------------------------------------*/
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "stm32f4xx.h"
 #include "stm32f4xx_hal.h"
+#include "usbd_def.h"
 
-/** @addtogroup USBD_OTG_DRIVER
-  * @{
-  */
-  
-/** @defgroup USBD_CONF
-  * @brief usb otg low level driver configuration file
-  * @{
-  */ 
-
-/** @defgroup USBD_CONF_Exported_Defines
-  * @{
-  */ 
-
-/*---------- -----------*/
-#define USBD_MAX_NUM_INTERFACES     1
-/*---------- -----------*/
-#define USBD_MAX_NUM_CONFIGURATION     1
-/*---------- -----------*/
-#define USBD_MAX_STR_DESC_SIZ     512
-/*---------- -----------*/
-#define USBD_SUPPORT_USER_STRING     0
-/*---------- -----------*/
-#define USBD_DEBUG_LEVEL     0
-/*---------- -----------*/
-#define USBD_LPM_ENABLED     0
-/*---------- -----------*/
-#define USBD_SELF_POWERED     1
-
-/****************************************/
-/* #define for FS and HS identification */
-#define DEVICE_FS 		0
-#define DEVICE_HS 		1
-
-/** @defgroup USBD_Exported_Macros
-  * @{
-  */ 
-
- /* Memory management macros */   
-#define USBD_malloc               malloc
-#define USBD_free                 free
-#define USBD_memset               memset
-#define USBD_memcpy               memcpy
-
-#define USBD_Delay   HAL_Delay
-    
- /* DEBUG macros */  
-
-#if (USBD_DEBUG_LEVEL > 0)
-#define  USBD_UsrLog(...)   printf(__VA_ARGS__);\
-                            printf("\n");
-#else
-#define USBD_UsrLog(...)   
-#endif 
-                            
-                            
-#if (USBD_DEBUG_LEVEL > 1)
-
-#define  USBD_ErrLog(...)   printf("ERROR: ") ;\
-                            printf(__VA_ARGS__);\
-                            printf("\n");
-#else
-#define USBD_ErrLog(...)   
-#endif 
-                            
-                            
-#if (USBD_DEBUG_LEVEL > 2)                         
-#define  USBD_DbgLog(...)   printf("DEBUG : ") ;\
-                            printf(__VA_ARGS__);\
-                            printf("\n");
-#else
-#define USBD_DbgLog(...)                         
+#if defined(F429_BIT6)
+#define HUSBDEVICE  hUsbDeviceHS
+extern USBD_HandleTypeDef hUsbDeviceHS;
+#elif defined(F429_ZET6)
+#define HUSBDEVICE  hUsbDeviceFS
+extern USBD_HandleTypeDef hUsbDeviceFS;
 #endif
-                            
-/**
-  * @}
-  */ 
- 
-    
-    
-/**
-  * @}
-  */ 
+/* USB_Device init function */	
+void MX_USB_DEVICE_Init(void);
 
-/** @defgroup USBD_CONF_Exported_Types
-  * @{
-  */ 
-/**
-  * @}
-  */ 
-
-/** @defgroup USBD_CONF_Exported_Macros
-  * @{
-  */ 
-/**
-  * @}
-  */ 
-
-/** @defgroup USBD_CONF_Exported_Variables
-  * @{
-  */ 
-/**
-  * @}
-  */ 
-
-/** @defgroup USBD_CONF_Exported_FunctionsPrototype
-  * @{
-  */ 
-/**
-  * @}
-  */ 
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* __USBD_CONF__H__ */
-
-/**
-  * @}
-  */ 
+#endif /*__usb_device_H */
 
 /**
   * @}
-  */ 
+  */
+
+/**
+  * @}
+  */
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-

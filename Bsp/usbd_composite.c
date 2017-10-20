@@ -71,7 +71,7 @@ __ALIGN_BEGIN uint8_t USBD_Composite_CfgFSDesc[USBD_COMPOSITE_DESC_SIZE]  __ALIG
 //    0x06,   // bFunctionSubClass: Abstract Control Model
 //    0x50,   // bFunctionProtocol: Common AT commands
 //    0x00,   // iFunction: index of string for this function
-	
+
     //--------------------------------------------------------------------------
     // Interface Descriptor
 	 0x09,   // bLength: Interface Descriptor size
@@ -83,7 +83,7 @@ __ALIGN_BEGIN uint8_t USBD_Composite_CfgFSDesc[USBD_COMPOSITE_DESC_SIZE]  __ALIG
     0x06,   // bInterfaceSubClass : SCSI transparent
     0x50,   // nInterfaceProtocol
     0x00,   // iInterface:
-	
+
 	// Endpoint IN descriptor
     0x07,                           // bLength: Endpoint descriptor length
     USB_DESC_TYPE_ENDPOINT,         // bDescriptorType: Endpoint descriptor type
@@ -101,7 +101,7 @@ __ALIGN_BEGIN uint8_t USBD_Composite_CfgFSDesc[USBD_COMPOSITE_DESC_SIZE]  __ALIG
     LOBYTE(MSC_MAX_FS_PACKET),         // wMaxPacketSize
     HIBYTE(MSC_MAX_FS_PACKET),
     0x00,                           // bInterval: ignore for Bulk transfer
-	
+
 	//==========================================================================
     // Interface Association for CDC VCP
     0x08,   // bLength: 8 bytes
@@ -112,7 +112,7 @@ __ALIGN_BEGIN uint8_t USBD_Composite_CfgFSDesc[USBD_COMPOSITE_DESC_SIZE]  __ALIG
     0x02,   // bFunctionSubClass: Abstract Control Model
     0x01,   // bFunctionProtocol: Common AT commands
     0x00,   // iFunction: index of string for this function
-	
+
 	//--------------------------------------------------------------------------
     // Interface Descriptor
     0x09,   // bLength: Interface Descriptor size
@@ -160,7 +160,7 @@ __ALIGN_BEGIN uint8_t USBD_Composite_CfgFSDesc[USBD_COMPOSITE_DESC_SIZE]  __ALIG
     LOBYTE(CDC_CMD_PACKET_SIZE),    // wMaxPacketSize:
     HIBYTE(CDC_CMD_PACKET_SIZE),
     0x20,                           // bInterval: polling interval in frames of 1ms
-	
+
 	//--------------------------------------------------------------------------
     // Data class interface descriptor
     0x09,   // bLength: Endpoint Descriptor size
@@ -221,10 +221,10 @@ static uint8_t  USBD_Composite_Init (USBD_HandleTypeDef *pdev,
 {
   uint8_t res = 0;
 
-  pdev->pUserData =  &USBD_CDC_Interface_fops_HS;
+  pdev->pUserData =  &USBD_CDC_Interface_fops;
   res +=  USBD_CDC.Init(pdev,cfgidx);
   pCDCData = pdev->pClassData;
-  pdev->pUserData = &USBD_Storage_Interface_fops_HS;
+  pdev->pUserData = &USBD_Storage_Interface_fops;
   res +=  USBD_MSC.Init(pdev,cfgidx);
   pMSCData = pdev->pClassData;
   return res;
@@ -242,11 +242,11 @@ static uint8_t  USBD_Composite_DeInit (USBD_HandleTypeDef *pdev,
 {
     uint8_t res = 0;
     pdev->pClassData = pCDCData;
-    pdev->pUserData = &USBD_CDC_Interface_fops_HS;
+    pdev->pUserData = &USBD_CDC_Interface_fops;
     res +=  USBD_CDC.DeInit(pdev,cfgidx);
 
     pdev->pClassData = pMSCData;
-    pdev->pUserData = &USBD_Storage_Interface_fops_HS;
+    pdev->pUserData = &USBD_Storage_Interface_fops;
     res +=  USBD_MSC.DeInit(pdev,cfgidx);
 
     return res;
@@ -278,12 +278,12 @@ static uint8_t  USBD_Composite_Setup (USBD_HandleTypeDef *pdev, USBD_SetupReqTyp
 //         case USBD_CDC_DATA_INTERFACE:
 //         case USBD_CDC_CMD_INTERFACE:
 //             pdev->pClassData = pCDCData;
-//             pdev->pUserData =  &USBD_CDC_Interface_fops_HS;
+//             pdev->pUserData =  &USBD_CDC_Interface_fops;
 //           return(USBD_CDC.Setup(pdev, req));
 
 //         case USBD_MSC_INTERFACE:
 //             pdev->pClassData = pMSCData;
-//             pdev->pUserData =  &USBD_Storage_Interface_fops_HS;
+//             pdev->pUserData =  &USBD_Storage_Interface_fops;
 //           return(USBD_MSC.Setup (pdev, req));
 
 //         default:
@@ -299,13 +299,13 @@ static uint8_t  USBD_Composite_Setup (USBD_HandleTypeDef *pdev, USBD_SetupReqTyp
 //         case CDC_OUT_EP:
 //         case CDC_CMD_EP:
 //             pdev->pClassData = pCDCData;
-//             pdev->pUserData =  &USBD_CDC_Interface_fops_HS;
+//             pdev->pUserData =  &USBD_CDC_Interface_fops;
 //           return(USBD_CDC.Setup(pdev, req));
 
 //         case MSC_EPIN_ADDR:
 //         case MSC_EPOUT_ADDR:
 //             pdev->pClassData = pMSCData;
-//             pdev->pUserData =  &USBD_Storage_Interface_fops_HS;
+//             pdev->pUserData =  &USBD_Storage_Interface_fops;
 //           return(USBD_MSC.Setup (pdev, req));
 
 //         default:
@@ -318,26 +318,26 @@ static uint8_t  USBD_Composite_Setup (USBD_HandleTypeDef *pdev, USBD_SetupReqTyp
 		if(req->wIndex == 1)
 		{
 			pdev->pClassData = pCDCData;
-			pdev->pUserData =  &USBD_CDC_Interface_fops_HS;
+			pdev->pUserData =  &USBD_CDC_Interface_fops;
 			return(USBD_CDC.Setup(pdev, req));
 		}
 		else if(req->wIndex == 0)
 		{
 			pdev->pClassData = pMSCData;
-			pdev->pUserData =  &USBD_Storage_Interface_fops_HS;
+			pdev->pUserData =  &USBD_Storage_Interface_fops;
 			return(USBD_MSC.Setup (pdev, req));
 		}
 	case USB_REQ_TYPE_STANDARD:
 		if(req->wIndex == 1)
 		{
 			pdev->pClassData = pCDCData;
-			pdev->pUserData =  &USBD_CDC_Interface_fops_HS;
+			pdev->pUserData =  &USBD_CDC_Interface_fops;
 			return(USBD_CDC.Setup(pdev, req));
 		}
 		else if(req->wIndex == 0)
 		{
 			pdev->pClassData = pMSCData;
-			pdev->pUserData =  &USBD_Storage_Interface_fops_HS;
+			pdev->pUserData =  &USBD_Storage_Interface_fops;
 			return(USBD_MSC.Setup (pdev, req));
 		}
 	}
@@ -361,12 +361,12 @@ uint8_t  USBD_Composite_DataIn (USBD_HandleTypeDef *pdev,
   {
       case CDC_INDATA_NUM:
         pdev->pClassData = pCDCData;
-        pdev->pUserData =  &USBD_CDC_Interface_fops_HS;
+        pdev->pUserData =  &USBD_CDC_Interface_fops;
          return(USBD_CDC.DataIn(pdev,epnum));
 
       case MSC_INDATA_NUM:
              pdev->pClassData = pMSCData;
-             pdev->pUserData =  &USBD_Storage_Interface_fops_HS;
+             pdev->pUserData =  &USBD_Storage_Interface_fops;
          return(USBD_MSC.DataIn(pdev,epnum));
 
       default:
@@ -392,12 +392,12 @@ uint8_t  USBD_Composite_DataOut (USBD_HandleTypeDef *pdev,
       case CDC_OUTDATA_NUM:
       case CDC_OUTCMD_NUM:
         pdev->pClassData = pCDCData;
-        pdev->pUserData =  &USBD_CDC_Interface_fops_HS;
+        pdev->pUserData =  &USBD_CDC_Interface_fops;
          return(USBD_CDC.DataOut(pdev,epnum));
 
       case MSC_OUTDATA_NUM:
              pdev->pClassData = pMSCData;
-             pdev->pUserData =  &USBD_Storage_Interface_fops_HS;
+             pdev->pUserData =  &USBD_Storage_Interface_fops;
          return(USBD_MSC.DataOut(pdev,epnum));
 
       default:

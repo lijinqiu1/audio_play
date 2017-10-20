@@ -6,41 +6,41 @@
   ******************************************************************************
   * This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
+  * USER CODE END. Other portions of this file, whether
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * Copyright (c) 2017 STMicroelectronics International N.V. 
+  * Copyright (c) 2017 STMicroelectronics International N.V.
   * All rights reserved.
   *
-  * Redistribution and use in source and binary forms, with or without 
+  * Redistribution and use in source and binary forms, with or without
   * modification, are permitted, provided that the following conditions are met:
   *
-  * 1. Redistribution of source code must retain the above copyright notice, 
+  * 1. Redistribution of source code must retain the above copyright notice,
   *    this list of conditions and the following disclaimer.
   * 2. Redistributions in binary form must reproduce the above copyright notice,
   *    this list of conditions and the following disclaimer in the documentation
   *    and/or other materials provided with the distribution.
-  * 3. Neither the name of STMicroelectronics nor the names of other 
-  *    contributors to this software may be used to endorse or promote products 
+  * 3. Neither the name of STMicroelectronics nor the names of other
+  *    contributors to this software may be used to endorse or promote products
   *    derived from this software without specific written permission.
-  * 4. This software, including modifications and/or derivative works of this 
+  * 4. This software, including modifications and/or derivative works of this
   *    software, must execute solely and exclusively on microcontroller or
   *    microprocessor devices manufactured by or for STMicroelectronics.
-  * 5. Redistribution and use of this software other than as permitted under 
-  *    this license is void and will automatically terminate your rights under 
-  *    this license. 
+  * 5. Redistribution and use of this software other than as permitted under
+  *    this license is void and will automatically terminate your rights under
+  *    this license.
   *
-  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS" 
-  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT 
-  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT
+  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
   * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
-  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT 
+  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT
   * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
   * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
-  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
   * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
   * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
@@ -51,15 +51,14 @@
 #include "i2s.h"
 
 #include "gpio.h"
-#include "dma.h"
 
 /* USER CODE BEGIN 0 */
+DMA_HandleTypeDef hdma_spi2_tx;
+DMA_HandleTypeDef hdma_i2s2_ext_rx;
 
 /* USER CODE END 0 */
 
 I2S_HandleTypeDef hi2s2;
-DMA_HandleTypeDef hdma_i2s2_ext_rx;
-DMA_HandleTypeDef hdma_spi2_tx;
 
 /* I2S2 init function */
 void MX_I2S2_Init(void)
@@ -92,13 +91,44 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef* i2sHandle)
   /* USER CODE END SPI2_MspInit 0 */
     /* I2S2 clock enable */
     __HAL_RCC_SPI2_CLK_ENABLE();
-  
-    /**I2S2 GPIO Configuration    
+  #if defined(F429_BIT6)
+    /**I2S2 GPIO Configuration
+    PC2     ------> I2S2_ext_SD
+    PC3     ------> I2S2_SD
+    PB10     ------> I2S2_CK
+    PB12     ------> I2S2_WS
+    PC6     ------> I2S2_MCK
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_2;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF6_I2S2ext;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_6;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = GPIO_PIN_10|GPIO_PIN_12;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+#elif defined(F429_ZET6)
+	/* I2S2 clock enable */
+    __HAL_RCC_SPI2_CLK_ENABLE();
+
+    /**I2S2 GPIO Configuration
     PC2     ------> I2S2_ext_SD
     PC3     ------> I2S2_SD
     PB12     ------> I2S2_WS
     PB13     ------> I2S2_CK
-    PC6     ------> I2S2_MCK 
+    PC6     ------> I2S2_MCK
     */
     GPIO_InitStruct.Pin = GPIO_PIN_2;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -121,35 +151,18 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef* i2sHandle)
     GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /* I2S2 DMA Init */
-    /* I2S2_EXT_RX Init */
-    hdma_i2s2_ext_rx.Instance = DMA1_Stream3;
-    hdma_i2s2_ext_rx.Init.Channel = DMA_CHANNEL_3;
-    hdma_i2s2_ext_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
-    hdma_i2s2_ext_rx.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_i2s2_ext_rx.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_i2s2_ext_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_i2s2_ext_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_i2s2_ext_rx.Init.Mode = DMA_CIRCULAR;
-    hdma_i2s2_ext_rx.Init.Priority = DMA_PRIORITY_LOW;
-    hdma_i2s2_ext_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-    if (HAL_DMA_Init(&hdma_i2s2_ext_rx) != HAL_OK)
-    {
-      _Error_Handler(__FILE__, __LINE__);
-    }
-
-    __HAL_LINKDMA(i2sHandle,hdmarx,hdma_i2s2_ext_rx);
-
-    /* SPI2_TX Init */
+#endif
+  /* USER CODE BEGIN SPI2_MspInit 1 */
+	/* SPI2_TX Init */
     hdma_spi2_tx.Instance = DMA1_Stream4;
     hdma_spi2_tx.Init.Channel = DMA_CHANNEL_0;
     hdma_spi2_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
     hdma_spi2_tx.Init.PeriphInc = DMA_PINC_DISABLE;
     hdma_spi2_tx.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_spi2_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_spi2_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_spi2_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    hdma_spi2_tx.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
     hdma_spi2_tx.Init.Mode = DMA_CIRCULAR;
-    hdma_spi2_tx.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_spi2_tx.Init.Priority = DMA_PRIORITY_MEDIUM;
     hdma_spi2_tx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     if (HAL_DMA_Init(&hdma_spi2_tx) != HAL_OK)
     {
@@ -158,11 +171,23 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef* i2sHandle)
 
     __HAL_LINKDMA(i2sHandle,hdmatx,hdma_spi2_tx);
 
-    /* I2S2 interrupt Init */
-    HAL_NVIC_SetPriority(SPI2_IRQn, 5, 0);
-    HAL_NVIC_EnableIRQ(SPI2_IRQn);
-  /* USER CODE BEGIN SPI2_MspInit 1 */
+    /* I2S2_EXT_RX Init */
+    hdma_i2s2_ext_rx.Instance = DMA1_Stream3;
+    hdma_i2s2_ext_rx.Init.Channel = DMA_CHANNEL_3;
+    hdma_i2s2_ext_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_i2s2_ext_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_i2s2_ext_rx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_i2s2_ext_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    hdma_i2s2_ext_rx.Init.MemDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    hdma_i2s2_ext_rx.Init.Mode = DMA_CIRCULAR;
+    hdma_i2s2_ext_rx.Init.Priority = DMA_PRIORITY_HIGH;
+    hdma_i2s2_ext_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    if (HAL_DMA_Init(&hdma_i2s2_ext_rx) != HAL_OK)
+    {
+      _Error_Handler(__FILE__, __LINE__);
+    }
 
+    __HAL_LINKDMA(i2sHandle,hdmarx,hdma_i2s2_ext_rx);
   /* USER CODE END SPI2_MspInit 1 */
   }
 }
@@ -177,29 +202,36 @@ void HAL_I2S_MspDeInit(I2S_HandleTypeDef* i2sHandle)
   /* USER CODE END SPI2_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_SPI2_CLK_DISABLE();
-  
-    /**I2S2 GPIO Configuration    
+#if defined(F429_BIT6)
+    /**I2S2 GPIO Configuration
+    PC2     ------> I2S2_ext_SD
+    PC3     ------> I2S2_SD
+    PB10     ------> I2S2_CK
+    PB12     ------> I2S2_WS
+    PC6     ------> I2S2_MCK
+    */
+    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_6);
+
+    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_10|GPIO_PIN_12);
+#elif defined(F429_ZET6)
+	/**I2S2 GPIO Configuration
     PC2     ------> I2S2_ext_SD
     PC3     ------> I2S2_SD
     PB12     ------> I2S2_WS
     PB13     ------> I2S2_CK
-    PC6     ------> I2S2_MCK 
+    PC6     ------> I2S2_MCK
     */
     HAL_GPIO_DeInit(GPIOC, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_6);
 
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_12|GPIO_PIN_13);
 
-    /* I2S2 DMA DeInit */
-    HAL_DMA_DeInit(i2sHandle->hdmarx);
-    HAL_DMA_DeInit(i2sHandle->hdmatx);
-
-    /* I2S2 interrupt Deinit */
-    HAL_NVIC_DisableIRQ(SPI2_IRQn);
+#endif
   /* USER CODE BEGIN SPI2_MspDeInit 1 */
-
+    HAL_DMA_DeInit(i2sHandle->hdmatx);
+    HAL_DMA_DeInit(i2sHandle->hdmarx);
   /* USER CODE END SPI2_MspDeInit 1 */
   }
-} 
+}
 
 /* USER CODE BEGIN 1 */
 
