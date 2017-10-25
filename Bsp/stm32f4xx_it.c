@@ -46,7 +46,11 @@ extern DMA_HandleTypeDef hdma_i2s2_ext_rx;
 extern DMA_HandleTypeDef hdma_sdio_rx;
 extern DMA_HandleTypeDef hdma_sdio_tx;
 extern SD_HandleTypeDef hsd;
+#if defined (F429_BIT6)
 extern UART_HandleTypeDef huart1;
+#elif defined (F429_ZET6)
+extern UART_HandleTypeDef huart7;
+#endif
 extern TIM_HandleTypeDef htim6;
 #if defined(F429_BIT6)
 extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
@@ -190,7 +194,7 @@ void USART1_IRQHandler(void)
   /* USER CODE BEGIN USART1_IRQn 0 */
 
   /* USER CODE END USART1_IRQn 0 */
-  HAL_UART_IRQHandler(&huart1);
+	
   /* USER CODE BEGIN USART1_IRQn 1 */
 
   /* USER CODE END USART1_IRQn 1 */

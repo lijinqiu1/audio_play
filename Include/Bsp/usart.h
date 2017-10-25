@@ -60,8 +60,12 @@
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
-
-extern UART_HandleTypeDef huart1;
+#if defined (F429_BIT6)
+#define HUART huart1
+#elif defined (F429_ZET6)
+#define HUART huart7
+#endif
+extern UART_HandleTypeDef HUART;
 
 /* USER CODE BEGIN Private defines */
 
