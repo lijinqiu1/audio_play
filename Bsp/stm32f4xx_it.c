@@ -37,8 +37,13 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN 0 */
+#if defined(IIS_MASTER_TX)
 extern DMA_HandleTypeDef hdma_spi2_tx;
 extern DMA_HandleTypeDef hdma_i2s2_ext_rx;
+#else
+extern DMA_HandleTypeDef hdma_spi2_rx;
+extern DMA_HandleTypeDef hdma_i2s2_ext_tx;
+#endif
 
 /* USER CODE END 0 */
 
@@ -194,7 +199,7 @@ void USART1_IRQHandler(void)
   /* USER CODE BEGIN USART1_IRQn 0 */
 
   /* USER CODE END USART1_IRQn 0 */
-	
+
   /* USER CODE BEGIN USART1_IRQn 1 */
 
   /* USER CODE END USART1_IRQn 1 */
@@ -265,7 +270,11 @@ void DMA1_Stream3_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Stream3_IRQn 0 */
 
   /* USER CODE END DMA1_Stream3_IRQn 0 */
+#if defined(IIS_MASTER_TX)
   HAL_DMA_IRQHandler(&hdma_i2s2_ext_rx);
+#else
+  HAL_DMA_IRQHandler(&hdma_i2s2_ext_tx);
+#endif
   /* USER CODE BEGIN DMA1_Stream3_IRQn 1 */
 
   /* USER CODE END DMA1_Stream3_IRQn 1 */
@@ -279,7 +288,11 @@ void DMA1_Stream4_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Stream4_IRQn 0 */
 
   /* USER CODE END DMA1_Stream4_IRQn 0 */
+#if defined(IIS_MASTER_TX)
   HAL_DMA_IRQHandler(&hdma_spi2_tx);
+#else
+  HAL_DMA_IRQHandler(&hdma_spi2_rx);
+#endif
   /* USER CODE BEGIN DMA1_Stream4_IRQn 1 */
 
   /* USER CODE END DMA1_Stream4_IRQn 1 */

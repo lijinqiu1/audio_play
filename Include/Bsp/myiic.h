@@ -14,9 +14,9 @@
 #define SDA_IN()  {GPIOB->MODER&=~(3<<(9*2));GPIOB->MODER|=0<<9*2;}	//PH5输入模式
 #define SDA_OUT() {GPIOB->MODER&=~(3<<(9*2));GPIOB->MODER|=1<<9*2;} //PH5输出模式
 //IO操作
-#define IIC_SCL   PHout(8) //SCL
-#define IIC_SDA   PHout(9) //SDA
-#define READ_SDA  PHin(9)  //输入SDA
+#define IIC_SCL   PBout(8) //SCL
+#define IIC_SDA   PBout(9) //SDA
+#define READ_SDA  PBin(9)  //输入SDA
 #endif
 //IIC所有操作函数
 void IIC_Init(void);                //初始化IIC的IO口

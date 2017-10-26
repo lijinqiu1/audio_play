@@ -60,6 +60,8 @@
 /*----------------------------------------------------------------------------*/
 /* USER CODE BEGIN 1 */
 extern EventGroupHandle_t xEventGroup;
+extern TimerHandle_t xKeyDelayTimer;
+static uint16_t key_pressd;
 /* USER CODE END 1 */
 
 /** Configure pins as
@@ -167,8 +169,9 @@ void MX_GPIO_Init(void)
                           |IIC_SDA_PB9_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, KEY_VOL_UP_PG9_Pin|KEY_ASK_PG10_Pin|KEY_VOL_DOWN_PG11_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOG, KEY_VOL_UP_PG9_Pin|KEY_ASK_PG10_Pin|KEY_VOL_DOWN_PG11_Pin|KEY_FUN_PG12_Pin, GPIO_PIN_RESET);
 
+  HAL_GPIO_WritePin(LED_PD5_GPIO_Port,LED_PD5_Pin,GPIO_PIN_SET);
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(REF_EN_PC4_GPIO_Port,REF_EN_PC4_Pin, GPIO_PIN_RESET);
 
@@ -188,30 +191,39 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+  GPIO_InitStruct.Pin = LED_PD5_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(LED_PD5_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = KEY_WAKE_UP_PA0_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(KEY_WAKE_UP_PA0_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = KEY_FUN_PG12_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(KEY_FUN_PG12_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PGPin PGPin PGPin */
   GPIO_InitStruct.Pin = KEY_VOL_UP_PG9_Pin|KEY_ASK_PG10_Pin|KEY_VOL_DOWN_PG11_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 10, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 10, 0);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 10, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
 #endif
 
@@ -222,59 +234,125 @@ void MX_GPIO_Init(void)
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+	key_pressd = GPIO_Pin;
+	xTimerStartFromISR(xKeyDelayTimer,&xHigherPriorityTaskWoken);
+//	if(key_work_status == 1)
+//	{//播放模式
+//		if(GPIO_Pin == KEY_VOL_UP_PG9_Pin)
+//		{
+//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_VOL_UP_BIT, &xHigherPriorityTaskWoken);
+//		}
+//		if(GPIO_Pin == KEY_VOL_DOWN_PG11_Pin)
+//		{
+//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_VOL_DOWN_BIT, &xHigherPriorityTaskWoken);
+//		}
+//		if(GPIO_Pin == KEY_FUN_PG12_Pin)
+//		{
+//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_VOL_UP_BIT, &xHigherPriorityTaskWoken);
+//		}
+//		if(GPIO_Pin == KEY_ASK_PG10_Pin)
+//		{
+//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_ASK_BIT, &xHigherPriorityTaskWoken);
+//		}
+//		if(GPIO_Pin== KEY_WAKE_UP_PA0_Pin)
+//		{
+
+//		}
+//	}
+//	else
+//	{//待机模式
+//		if(GPIO_Pin == KEY_VOL_UP_PG9_Pin)
+//		{
+//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_PLAY_BIT, &xHigherPriorityTaskWoken);
+//		}
+//		if(GPIO_Pin == KEY_VOL_DOWN_PG11_Pin)
+//		{
+//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_RECORD_BIT, &xHigherPriorityTaskWoken);
+//		}
+//		if(GPIO_Pin == KEY_FUN_PG12_Pin)
+//		{
+//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_FUN_BLE_CHANGE_BIT, &xHigherPriorityTaskWoken);
+//		}
+//		if(GPIO_Pin == KEY_ASK_PG10_Pin)
+//		{
+//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_PLAY_AND_RECORD_BIT, &xHigherPriorityTaskWoken);
+//		}
+//		if(GPIO_Pin== KEY_WAKE_UP_PA0_Pin)
+//		{
+//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_FUN_BLE_PAIR_BIT, &xHigherPriorityTaskWoken);
+//		}
+////		if(GPIO_Pin == KEY_Pin)
+////		{
+////			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_PLAY_AND_RECORD_BIT, &xHigherPriorityTaskWoken);
+////		}
+
+//	}
+	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+void prvKeyDelayCallback(TimerHandle_t xTimer)
+{
+	uint16_t GPIO_Pin;
+
+	GPIO_Pin = key_pressd;
 	if(key_work_status == 1)
 	{//播放模式
 		if(GPIO_Pin == KEY_VOL_UP_PG9_Pin)
 		{
-			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_VOL_UP_BIT, &xHigherPriorityTaskWoken);
+			if(HAL_GPIO_ReadPin(KEY_VOL_UP_PG9_GPIO_Port,KEY_VOL_UP_PG9_Pin))
+				xEventGroupSetBits(xEventGroup, EVENTS_VOL_UP_BIT);
 		}
 		if(GPIO_Pin == KEY_VOL_DOWN_PG11_Pin)
 		{
-			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_VOL_DOWN_BIT, &xHigherPriorityTaskWoken);
+			if(HAL_GPIO_ReadPin(KEY_VOL_DOWN_PG11_GPIO_Port,KEY_VOL_DOWN_PG11_Pin))
+				xEventGroupSetBits(xEventGroup, EVENTS_VOL_DOWN_BIT);
 		}
 		if(GPIO_Pin == KEY_FUN_PG12_Pin)
 		{
-			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_VOL_UP_BIT, &xHigherPriorityTaskWoken);
+			if(HAL_GPIO_ReadPin(KEY_FUN_PG12_GPIO_Port,KEY_FUN_PG12_Pin))
+				xEventGroupSetBits(xEventGroup, EVENTS_VOL_UP_BIT);
 		}
 		if(GPIO_Pin == KEY_ASK_PG10_Pin)
 		{
-			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_ASK_BIT, &xHigherPriorityTaskWoken);
+			if(HAL_GPIO_ReadPin(KEY_ASK_PG10_GPIO_Port,KEY_ASK_PG10_Pin))
+				xEventGroupSetBits(xEventGroup, EVENTS_ASK_BIT);
 		}
-		if(GPIO_Pin== KEY_WAKE_UP_PA0_Pin)
+		if(GPIO_Pin == KEY_WAKE_UP_PA0_Pin)
 		{
-
+			if(!HAL_GPIO_ReadPin(KEY_WAKE_UP_PA0_GPIO_Port,KEY_WAKE_UP_PA0_Pin))
+				xEventGroupSetBits(xEventGroup,EVENTS_FUN_STOP_BIT);
 		}
 	}
 	else
 	{//待机模式
 		if(GPIO_Pin == KEY_VOL_UP_PG9_Pin)
 		{
-			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_PLAY_BIT, &xHigherPriorityTaskWoken);
+			if(HAL_GPIO_ReadPin(KEY_VOL_UP_PG9_GPIO_Port,KEY_VOL_UP_PG9_Pin))
+				xEventGroupSetBits(xEventGroup, EVENTS_PLAY_BIT);
 		}
 		if(GPIO_Pin == KEY_VOL_DOWN_PG11_Pin)
 		{
-			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_RECORD_BIT, &xHigherPriorityTaskWoken);
+			if(HAL_GPIO_ReadPin(KEY_VOL_DOWN_PG11_GPIO_Port,KEY_VOL_DOWN_PG11_Pin))
+				xEventGroupSetBits(xEventGroup, EVENTS_RECORD_BIT);
 		}
 		if(GPIO_Pin == KEY_FUN_PG12_Pin)
 		{
-			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_FUN_BLE_CHANGE_BIT, &xHigherPriorityTaskWoken);
+			if(HAL_GPIO_ReadPin(KEY_FUN_PG12_GPIO_Port,KEY_FUN_PG12_Pin))
+				xEventGroupSetBits(xEventGroup, EVENTS_FUN_BLE_CHANGE_BIT);
 		}
 		if(GPIO_Pin == KEY_ASK_PG10_Pin)
 		{
-			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_PLAY_AND_RECORD_BIT, &xHigherPriorityTaskWoken);
+			if(HAL_GPIO_ReadPin(KEY_ASK_PG10_GPIO_Port,KEY_ASK_PG10_Pin))
+				xEventGroupSetBits(xEventGroup, EVENTS_PLAY_AND_RECORD_BIT);
 		}
 		if(GPIO_Pin== KEY_WAKE_UP_PA0_Pin)
 		{
-			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_FUN_BLE_PAIR_BIT, &xHigherPriorityTaskWoken);
+			if(!HAL_GPIO_ReadPin(KEY_WAKE_UP_PA0_GPIO_Port,KEY_WAKE_UP_PA0_Pin))
+				xEventGroupSetBits(xEventGroup, EVENTS_FUN_BLE_PAIR_BIT);
 		}
-		if(GPIO_Pin == KEY_Pin)
-		{
-			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_PLAY_AND_RECORD_BIT, &xHigherPriorityTaskWoken);
-		}
-
 	}
-	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
+
 /* USER CODE END 2 */
 
 /**

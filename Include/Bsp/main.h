@@ -143,6 +143,9 @@
 #define REF_EN_PC4_Pin GPIO_PIN_4
 #define REF_EN_PC4_GPIO_Port GPIOC
 
+#define LED_PD5_Pin GPIO_PIN_5
+#define LED_PD5_GPIO_Port GPIOD
+
 #endif
 /* USER CODE BEGIN Private defines */
 /* EVENTS GROUP */
@@ -160,7 +163,7 @@
 #define EVENTS_PLAY_AND_RECORD_END_BIT       (1UL << 11UL)
 
 /* QUEUE */
-#define QUEUE_LOG_ITEM_SIZE                   40
+#define QUEUE_LOG_ITEM_SIZE                   70
 #define QUEUE_LOG_ITEM_LENGTH                 10
 /* file dir */
 

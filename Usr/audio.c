@@ -71,7 +71,7 @@ static void send_log(char *log)
 
 	HAL_RTC_GetTime(&hrtc,&tim,RTC_FORMAT_BIN);
 	HAL_RTC_GetDate(&hrtc,&dat,RTC_FORMAT_BIN);
-	sprintf(queuebuffer,"%04d/%02d/%02d-%02d/%02d/%02d/%03d    %s\r\n",\
+	sprintf(queuebuffer,"%04d/%02d/%02d-%02d/%02d/%02d/%03d    %s\n",\
 		dat.Year+2000,dat.Month,dat.Date,\
 		tim.Hours,tim.Minutes,tim.Seconds,tim.SubSeconds,\
 		log);
@@ -259,8 +259,11 @@ static void IIS_Init(uint32_t DataFormat,uint32_t AudioFreq)
 	else
 		return ;//not support
     hi2s2.Init.AudioFreq = AudioFreq;
-	hi2s2.Instance = SPI2;
-	hi2s2.Init.Mode = I2S_MODE_MASTER_TX;
+#if defined(IIS_MASTER_TX)
+  hi2s2.Init.Mode = I2S_MODE_MASTER_TX;
+#else
+  hi2s2.Init.Mode = I2S_MODE_MASTER_RX;
+#endif
 	hi2s2.Init.Standard = I2S_STANDARD_PHILIPS;
 	hi2s2.Init.MCLKOutput = I2S_MCLKOUTPUT_ENABLE;
 	hi2s2.Init.CPOL = I2S_CPOL_LOW;
@@ -360,7 +363,8 @@ void AudioController_Task(void const * argument)
 	const EventBits_t xBitsToWaitFor = (EVENTS_VOL_UP_BIT|
 		                                  EVENTS_VOL_DOWN_BIT|
 		                                  EVENTS_FUN_BLE_CHANGE_BIT|
-		                                  EVENTS_FUN_BLE_PAIR_BIT);
+		                                  EVENTS_FUN_BLE_PAIR_BIT|
+										  EVENTS_ASK_BIT);
 //	const EventBits_t uxAllSyncBits = ( EVENTS_VOL_UP_BIT |
 //										EVENTS_VOL_DOWN_BIT |
 //										EVENTS_FUN_STOP_BIT |
@@ -401,6 +405,7 @@ void AudioController_Task(void const * argument)
 			//记录log
 			sprintf(log,"volume+");
 			send_log(log);
+			app_trace_log("volume+\n");
 		}
 		if((xEventGroupValue&EVENTS_VOL_DOWN_BIT)!=0)
 		{
@@ -414,6 +419,7 @@ void AudioController_Task(void const * argument)
 			//记录log
 			sprintf(log,"volume-");
 			send_log(log);
+			app_trace_log("volume-\n");
 		}
 		if((xEventGroupValue&EVENTS_FUN_BLE_CHANGE_BIT)!=0)
 		{//使用蓝牙/耳机切换
@@ -433,8 +439,14 @@ void AudioController_Task(void const * argument)
 			sprintf(log,"BLE Pairing");
 			send_log(log);
 			HAL_GPIO_WritePin(PAIR_BT_PB1_GPIO_Port,PAIR_BT_PB1_Pin,GPIO_PIN_RESET);
-			osDelay(100);
+			osDelay(1000);
 			HAL_GPIO_WritePin(PAIR_BT_PB1_GPIO_Port,PAIR_BT_PB1_Pin,GPIO_PIN_SET);
+		}
+		if((xEventGroupValue&EVENTS_ASK_BIT)!=0)
+		{
+			sprintf(log,"report");
+			send_log(log);
+			app_trace_log("report\n");
 		}
 	}
 
@@ -602,7 +614,7 @@ void AudioPlay_Task(void const * argument)
 		    res=f_open(audiodev.file2,(const TCHAR*)path,FA_CREATE_ALWAYS|FA_WRITE);
 			if (res != FR_OK)
 			{
-				app_trace_log("error:%d ,%s,%d\n",res,__FUNCTION__,__LINE__);
+				app_trace_log("error:%x ,%s,%d\n",res,__FUNCTION__,__LINE__);
 				continue;
 			}
 			//写入文件头
@@ -649,6 +661,7 @@ void AudioPlay_Task(void const * argument)
 			//进入播放模式
 			key_work_status = 1;
 			stop_play_record = 0;
+			HAL_GPIO_WritePin(LED_PD5_GPIO_Port,LED_PD5_Pin,GPIO_PIN_RESET);
 		}
 
 		if ((xEventGroupValue & EVENTS_FUN_STOP_BIT) != 0)
@@ -687,6 +700,7 @@ void AudioPlay_Task(void const * argument)
 		                {
 		                    wavsize+=WAV_I2S_RX_DMA_BUFSIZE/2;
 						}
+						f_sync(audiodev.file2);
 					}
 				}
 				else
@@ -706,6 +720,7 @@ void AudioPlay_Task(void const * argument)
 		                {
 		                    wavsize+=WAV_I2S_RX_DMA_BUFSIZE/2;
 						}
+						f_sync(audiodev.file2);
 					}
 				}
 			}
@@ -753,6 +768,7 @@ error1:
 				play_begin = 0; //关闭播放
 				record_begin = 0; //关闭录音
 				key_work_status = 0;//进入待机模式
+				HAL_GPIO_WritePin(LED_PD5_GPIO_Port,LED_PD5_Pin,GPIO_PIN_SET);
 			}
 		}
 		else

@@ -61,6 +61,7 @@ osThreadId defaultTaskHandle;
 
 /* USER CODE BEGIN Variables */
 EventGroupHandle_t xEventGroup;
+TimerHandle_t xKeyDelayTimer;
 
 extern QueueHandle_t xQueueLog;
 
@@ -73,6 +74,7 @@ extern osThreadId logrecordHandle;
 void StartDefaultTask(void const * argument);
 
 extern void MX_FATFS_Init(void);
+extern void prvKeyDelayCallback(TimerHandle_t xTimer);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* USER CODE BEGIN FunctionPrototypes */
@@ -104,6 +106,7 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
+  xKeyDelayTimer = xTimerCreate("OneShot",pdMS_TO_TICKS(10),pdFALSE,0,prvKeyDelayCallback);
   /* 周期性处理任务 */
   /* USER CODE END RTOS_TIMERS */
 
@@ -119,7 +122,7 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(audioplayTask,AudioPlay_Task,osPriorityHigh,0,4096);
   audioplayTaskHandle = osThreadCreate(osThread(audioplayTask),NULL);
   /*音频控制线程*/
-  osThreadDef(audiocontrollerTask,AudioController_Task,osPriorityNormal,0,1024);
+  osThreadDef(audiocontrollerTask,AudioController_Task,osPriorityBelowNormal,0,1024);
   audiocontrollerHandle = osThreadCreate(osThread(audiocontrollerTask),NULL);
   /*log线程*/
   osThreadDef(logrecordTask,Log_Record_Task,osPriorityNormal,0,1024);
