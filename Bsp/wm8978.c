@@ -13,7 +13,7 @@
 //All rights reserved
 //////////////////////////////////////////////////////////////////////////////////
 //记录音量(0~63)
-int8_t volume = 40;
+int8_t volume = 50;
 
 //WM8978寄存器值缓存区(总共58个寄存器,0~57),占用116字节内存
 //因为WM8978的IIC操作不支持读操作,所以在本地保存所有寄存器值
@@ -41,10 +41,10 @@ uint8_t WM8978_Init(void)
 	if(res)return 1;			//发送指令失败,WM8978异常
 	//以下为通用设置
 	WM8978_Write_Reg(1,0XDB);	//R1,OUT3\4MIXEN设置为1使能,MICEN设置为1(MIC使能),BIASEN设置为1(模拟器工作),VMIDSEL[1:0]设置为:11(5K)
-//	WM8978_Write_Reg(1,0X1B);								//R1,MICEN???1(MIC??),BIASEN???1(?????),VMIDSEL[1:0]???:11(5K)
+//	WM8978_Write_Reg(1,0X1B);	//R1,MICEN???1(MIC??),BIASEN???1(?????),VMIDSEL[1:0]???:11(5K)
 	WM8978_Write_Reg(2,0X1B0);	//R2,ROUT1,LOUT1输出使能(耳机可以工作),BOOSTENR,BOOSTENL使能
 	WM8978_Write_Reg(3,0X1EC);	//R3,LOUT2,ROUT2输出使能(喇叭工作),RMIX,LMIX使能,OUT3/4使能
-//	WM8978_Write_Reg(3,0X6C);								//R3,LOUT2,ROUT2????(????),RMIX,LMIX??	
+//	WM8978_Write_Reg(3,0X6C);	//R3,LOUT2,ROUT2????(????),RMIX,LMIX??
 	WM8978_Write_Reg(6,0);		//R6,MCLK由外部提供
 	WM8978_Write_Reg(43,1<<4);	//R43,INVROUT2反向,驱动喇叭
 	WM8978_Write_Reg(47,1<<8);	//R47设置,PGABOOSTL,左通道MIC获得20倍增益

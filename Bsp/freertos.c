@@ -62,6 +62,8 @@ osThreadId defaultTaskHandle;
 /* USER CODE BEGIN Variables */
 EventGroupHandle_t xEventGroup;
 TimerHandle_t xKeyDelayTimer;
+SemaphoreHandle_t xSdioMutex;
+
 
 extern QueueHandle_t xQueueLog;
 
@@ -90,14 +92,10 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE END Init */
 
-  /* USER CODE BEGIN RTOS_MUTEX */
-  /* add mutexes, ... */
-  /* sdio »¥³âËø*/
-
-  /* USER CODE END RTOS_MUTEX */
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
+  xSdioMutex = xSemaphoreCreateMutex();
   /* USER CODE END RTOS_SEMAPHORES */
 
   /* USER CODE BEGIN RTOS_EVENTGROUP */

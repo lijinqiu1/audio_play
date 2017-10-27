@@ -120,8 +120,8 @@
 #define RESET_BT_PB11_Pin GPIO_PIN_11
 #define RESET_BT_PB11_GPIO_Port GPIOB
 
-#define KEY_FUN_PG12_Pin GPIO_PIN_7         /*待机模式:蓝牙耳机切换*/
-#define KEY_FUN_PG12_GPIO_Port GPIOD
+#define KEY_FUN_PD7_Pin GPIO_PIN_7         /*待机模式:蓝牙耳机切换*/
+#define KEY_FUN_PD7_GPIO_Port GPIOD
 
 #define KEY_ASK_PG10_Pin GPIO_PIN_10        /*播放模式:报告\待机模式:播放录音*/
 #define KEY_ASK_PG10_GPIO_Port GPIOG

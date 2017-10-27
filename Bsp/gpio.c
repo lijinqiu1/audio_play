@@ -143,10 +143,10 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(KEY_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 7, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 7, 0);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 #elif defined(F429_ZET6)
   GPIO_InitTypeDef GPIO_InitStruct;
@@ -169,7 +169,7 @@ void MX_GPIO_Init(void)
                           |IIC_SDA_PB9_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, KEY_VOL_UP_PG9_Pin|KEY_ASK_PG10_Pin|KEY_VOL_DOWN_PG11_Pin|KEY_FUN_PG12_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOG, KEY_ASK_PG10_Pin|KEY_VOL_DOWN_PG11_Pin, GPIO_PIN_RESET);
 
   HAL_GPIO_WritePin(LED_PD5_GPIO_Port,LED_PD5_Pin,GPIO_PIN_SET);
   /*Configure GPIO pin Output Level */
@@ -204,10 +204,10 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(KEY_WAKE_UP_PA0_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = KEY_FUN_PG12_Pin;
+  GPIO_InitStruct.Pin = KEY_FUN_PD7_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  HAL_GPIO_Init(KEY_FUN_PG12_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(KEY_FUN_PD7_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PGPin PGPin PGPin */
   GPIO_InitStruct.Pin = KEY_VOL_UP_PG9_Pin|KEY_ASK_PG10_Pin|KEY_VOL_DOWN_PG11_Pin;
@@ -307,10 +307,9 @@ void prvKeyDelayCallback(TimerHandle_t xTimer)
 			if(HAL_GPIO_ReadPin(KEY_VOL_DOWN_PG11_GPIO_Port,KEY_VOL_DOWN_PG11_Pin))
 				xEventGroupSetBits(xEventGroup, EVENTS_VOL_DOWN_BIT);
 		}
-		if(GPIO_Pin == KEY_FUN_PG12_Pin)
+		if(GPIO_Pin == KEY_FUN_PD7_Pin)
 		{
-			if(HAL_GPIO_ReadPin(KEY_FUN_PG12_GPIO_Port,KEY_FUN_PG12_Pin))
-				xEventGroupSetBits(xEventGroup, EVENTS_VOL_UP_BIT);
+
 		}
 		if(GPIO_Pin == KEY_ASK_PG10_Pin)
 		{
@@ -335,9 +334,9 @@ void prvKeyDelayCallback(TimerHandle_t xTimer)
 			if(HAL_GPIO_ReadPin(KEY_VOL_DOWN_PG11_GPIO_Port,KEY_VOL_DOWN_PG11_Pin))
 				xEventGroupSetBits(xEventGroup, EVENTS_RECORD_BIT);
 		}
-		if(GPIO_Pin == KEY_FUN_PG12_Pin)
+		if(GPIO_Pin == KEY_FUN_PD7_Pin)
 		{
-			if(HAL_GPIO_ReadPin(KEY_FUN_PG12_GPIO_Port,KEY_FUN_PG12_Pin))
+			if(HAL_GPIO_ReadPin(KEY_FUN_PD7_GPIO_Port,KEY_FUN_PD7_Pin))
 				xEventGroupSetBits(xEventGroup, EVENTS_FUN_BLE_CHANGE_BIT);
 		}
 		if(GPIO_Pin == KEY_ASK_PG10_Pin)

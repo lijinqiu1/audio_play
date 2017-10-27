@@ -6,7 +6,7 @@
   ******************************************************************************
   ** This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
+  * USER CODE END. Other portions of this file, whether
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
@@ -70,7 +70,7 @@ void HAL_RNG_MspInit(RNG_HandleTypeDef* rngHandle)
     __HAL_RCC_RNG_CLK_ENABLE();
 
     /* RNG interrupt Init */
-    HAL_NVIC_SetPriority(HASH_RNG_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(HASH_RNG_IRQn, 10, 0);
     HAL_NVIC_EnableIRQ(HASH_RNG_IRQn);
   /* USER CODE BEGIN RNG_MspInit 1 */
 
@@ -95,7 +95,7 @@ void HAL_RNG_MspDeInit(RNG_HandleTypeDef* rngHandle)
 
   /* USER CODE END RNG_MspDeInit 1 */
   }
-} 
+}
 
 /* USER CODE BEGIN 1 */
 

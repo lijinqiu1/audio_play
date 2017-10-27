@@ -13,6 +13,7 @@ QueueHandle_t xQueueLog;
 osThreadId logrecordHandle;
 
 extern EventGroupHandle_t xEventGroup;
+extern SemaphoreHandle_t xSdioMutex;
 //*******************************************************************************
 //事件记录线程
 //负责写入文件log
@@ -58,8 +59,10 @@ void Log_Record_Task(void const * argument)
 		xStatus = xQueueReceive(xQueueLog,queuebuf,portMAX_DELAY);
 		if (xStatus == pdPASS)
 		{
+			xSemaphoreTake(xSdioMutex,portMAX_DELAY);
 			f_puts((const TCHAR*) queuebuf,&log_file);
 			f_sync(&log_file);
+			xSemaphoreGive(xSdioMutex);
 		}
 	}
 }

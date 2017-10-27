@@ -14,6 +14,7 @@ osThreadId audioplayTaskHandle;
 osThreadId audiocontrollerHandle;
 extern EventGroupHandle_t xEventGroup;
 extern QueueHandle_t xQueueLog;
+extern SemaphoreHandle_t xSdioMutex;
 //音乐播放控制器
 __audiodev audiodev;
 
@@ -176,6 +177,8 @@ static uint32_t wav_buffill(uint8_t *buf,uint8_t *tbuf,FIL*file,uint16_t size,ui
 	uint16_t i = 0;
 	uint8_t *p;
     FRESULT res;
+
+	xSemaphoreTake(xSdioMutex,portMAX_DELAY);
 	if(bits==24)//24bit音频,需要处理一下
 	{
 		readlen=(size/4)*3;							//此次要读取的字节数
@@ -205,7 +208,12 @@ static uint32_t wav_buffill(uint8_t *buf,uint8_t *tbuf,FIL*file,uint16_t size,ui
                 for(i=bread;i<size-bread;i++)buf[i]=0;
             }
         }
+		else
+		{
+			APP_ERROR_CHECK(res);
+		}
 	}
+	xSemaphoreGive(xSdioMutex);
 	return bread;
 }
 
@@ -499,11 +507,7 @@ void AudioPlay_Task(void const * argument)
 //										EVENTS_FUN_BLE_CLOSE_BIT);
 	//挂载SD卡
 	res = f_mount(&fs,(const TCHAR*)SD_Path,0);
-	if (res !=FR_OK)
-	{
-	 app_trace_log("err %s,%d\n",__FUNCTION__,__LINE__);
-	 while(1);
-	}
+	APP_ERROR_CHECK(res);
 	//获取播放音乐文件
 	file_count = Get_Play_List();
 	//打开录音文件夹，如果没有创建
@@ -513,7 +517,7 @@ void AudioPlay_Task(void const * argument)
 		if (res != FR_OK)
 		{
 			app_trace_log("%s,%d,error %d\n",__FUNCTION__,__LINE__,res);
-			goto error2 ;
+			APP_ERROR_CHECK(res);
 		}
 	}
 	f_closedir(&recdir);
@@ -574,7 +578,8 @@ void AudioPlay_Task(void const * argument)
 			if (res != FR_OK)
 			{
 				app_trace_log("error %s,%d\n",__FUNCTION__,__LINE__);
-				goto error2;
+				stop_play_record = 1;
+				goto end;
 			}
 			strcpy(path,MUSIC_PATH);
 			strcat(path,(const char*)pname);
@@ -667,6 +672,7 @@ void AudioPlay_Task(void const * argument)
 		if ((xEventGroupValue & EVENTS_FUN_STOP_BIT) != 0)
 		{//停止播放
 			stop_play_record = 1;
+			app_trace_log("play stop\n");
 			goto end;
 		}
 
@@ -691,6 +697,7 @@ void AudioPlay_Task(void const * argument)
 					}
 					if(record_begin == 1)
 					{
+						xSemaphoreTake(xSdioMutex,portMAX_DELAY);
 	                	res=f_write(audiodev.file2,audiodev.i2sbuf2+WAV_I2S_RX_DMA_BUFSIZE/2,WAV_I2S_RX_DMA_BUFSIZE/2,(UINT*)&bw);//写入文件
 		                if(res != FR_OK)
 		                {
@@ -701,6 +708,7 @@ void AudioPlay_Task(void const * argument)
 		                    wavsize+=WAV_I2S_RX_DMA_BUFSIZE/2;
 						}
 						f_sync(audiodev.file2);
+						xSemaphoreGive(xSdioMutex);
 					}
 				}
 				else
@@ -711,6 +719,7 @@ void AudioPlay_Task(void const * argument)
 					}
 					if(record_begin == 1)
 					{
+						xSemaphoreTake(xSdioMutex,portMAX_DELAY);
 						res=f_write(audiodev.file2,audiodev.i2sbuf2,WAV_I2S_RX_DMA_BUFSIZE/2,(UINT*)&bw);//写入文件
 		                if(res != FR_OK)
 		                {
@@ -721,6 +730,7 @@ void AudioPlay_Task(void const * argument)
 		                    wavsize+=WAV_I2S_RX_DMA_BUFSIZE/2;
 						}
 						f_sync(audiodev.file2);
+						xSemaphoreGive(xSdioMutex);
 					}
 				}
 			}
