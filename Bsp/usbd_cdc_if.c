@@ -50,6 +50,7 @@
 #include "usbd_cdc_if.h"
 /* USER CODE BEGIN INCLUDE */
 #include "usb_device.h"
+#include "rtc.h"
 /* USER CODE END INCLUDE */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -274,8 +275,33 @@ static int8_t CDC_Control  (uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive (uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 11 */
+  uint8_t buffer[9] = {0xA5, 0x01, 0x80};
+  RTC_TimeTypeDef tim;
+  RTC_DateTypeDef dat;
+
   USBD_CDC_SetRxBuffer(&HUSBDEVICE, &Buf[0]);
   USBD_CDC_ReceivePacket(&HUSBDEVICE);
+  //报文处理
+  if (Buf[0] == 0xA5)
+  {
+  	switch(Buf[1])
+  	{
+	case 1:
+		//时间同步
+		dat.Year = Buf[2];
+		dat.Month = Buf[3];
+		dat.Date = Buf[4];
+		dat.WeekDay = Buf[5];
+		tim.Hours = Buf[6];
+		tim.Minutes = Buf[7];
+		tim.Seconds = Buf[8];
+		HAL_RTC_SetTime(&hrtc,&tim,RTC_FORMAT_BIN);
+		HAL_RTC_SetDate(&hrtc,&dat,RTC_FORMAT_BIN);
+		CDC_Transmit(buffer,3);
+		break;
+	}
+
+  }
   return (USBD_OK);
   /* USER CODE END 11 */
 }

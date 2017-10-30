@@ -161,6 +161,7 @@
 #define EVENTS_PLAY_END_BIT                  (1UL <<  9UL)
 #define EVENTS_RECORD_END_BIT                (1UL << 10UL)
 #define EVENTS_PLAY_AND_RECORD_END_BIT       (1UL << 11UL)
+#define EVENTS_NEW_DAY_BIT                   (1UL << 12UL)
 
 /* QUEUE */
 #define QUEUE_LOG_ITEM_SIZE                   70

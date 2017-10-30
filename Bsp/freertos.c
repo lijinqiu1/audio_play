@@ -54,6 +54,7 @@
 /* USER CODE BEGIN Includes */
 #include "audio.h"
 #include "log.h"
+#include "events.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
@@ -70,6 +71,7 @@ extern QueueHandle_t xQueueLog;
 extern osThreadId audioplayTaskHandle;
 extern osThreadId audiocontrollerHandle;
 extern osThreadId logrecordHandle;
+extern osThreadId eventsprocessHandle;
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
@@ -125,11 +127,9 @@ void MX_FREERTOS_Init(void) {
   /*log线程*/
   osThreadDef(logrecordTask,Log_Record_Task,osPriorityNormal,0,1024);
   logrecordHandle = osThreadCreate(osThread(logrecordTask),NULL);
-  /*log 记录线程*/
-
-  /*音频控制线程*/
-
-  /*事件控制线程*/
+  /*事件处理线程*/
+  osThreadDef(eventsprocessTask,Events_Process_Task,osPriorityBelowNormal,0,512);
+  eventsprocessHandle = osThreadCreate(osThread(eventsprocessTask),NULL);
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_QUEUES */

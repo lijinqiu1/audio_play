@@ -6,41 +6,41 @@
   ******************************************************************************
   * This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
+  * USER CODE END. Other portions of this file, whether
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * Copyright (c) 2017 STMicroelectronics International N.V. 
+  * Copyright (c) 2017 STMicroelectronics International N.V.
   * All rights reserved.
   *
-  * Redistribution and use in source and binary forms, with or without 
+  * Redistribution and use in source and binary forms, with or without
   * modification, are permitted, provided that the following conditions are met:
   *
-  * 1. Redistribution of source code must retain the above copyright notice, 
+  * 1. Redistribution of source code must retain the above copyright notice,
   *    this list of conditions and the following disclaimer.
   * 2. Redistributions in binary form must reproduce the above copyright notice,
   *    this list of conditions and the following disclaimer in the documentation
   *    and/or other materials provided with the distribution.
-  * 3. Neither the name of STMicroelectronics nor the names of other 
-  *    contributors to this software may be used to endorse or promote products 
+  * 3. Neither the name of STMicroelectronics nor the names of other
+  *    contributors to this software may be used to endorse or promote products
   *    derived from this software without specific written permission.
-  * 4. This software, including modifications and/or derivative works of this 
+  * 4. This software, including modifications and/or derivative works of this
   *    software, must execute solely and exclusively on microcontroller or
   *    microprocessor devices manufactured by or for STMicroelectronics.
-  * 5. Redistribution and use of this software other than as permitted under 
-  *    this license is void and will automatically terminate your rights under 
-  *    this license. 
+  * 5. Redistribution and use of this software other than as permitted under
+  *    this license is void and will automatically terminate your rights under
+  *    this license.
   *
-  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS" 
-  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT 
-  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT
+  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
   * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
-  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT 
+  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT
   * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
   * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
-  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
   * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
   * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
@@ -52,6 +52,10 @@
 
 /* USER CODE BEGIN 0 */
 
+#include "FreeRTOS.h"
+#include "task.h"
+#include "cmsis_os.h"
+extern EventGroupHandle_t xEventGroup;
 /* USER CODE END 0 */
 
 RTC_HandleTypeDef hrtc;
@@ -61,8 +65,9 @@ void MX_RTC_Init(void)
 {
   RTC_TimeTypeDef sTime;
   RTC_DateTypeDef sDate;
+  RTC_AlarmTypeDef salarmstructure;
 
-    /**Initialize RTC Only 
+    /**Initialize RTC Only
     */
   hrtc.Instance = RTC;
   hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
@@ -76,32 +81,54 @@ void MX_RTC_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Initialize RTC and set the Time and Date 
+    /**Initialize RTC and set the Time and Date
     */
   if(HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR0) != 0x32F2){
-  sTime.Hours = 0x0;
-  sTime.Minutes = 0x0;
-  sTime.Seconds = 0x0;
-  sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-  sTime.StoreOperation = RTC_STOREOPERATION_RESET;
-  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
+	sTime.Hours = 0x0;
+	sTime.Minutes = 0x0;
+	sTime.Seconds = 0x0;
+	sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+	sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+	if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
+	{
+	_Error_Handler(__FILE__, __LINE__);
+	}
 
-  sDate.WeekDay = RTC_WEEKDAY_MONDAY;
-  sDate.Month = RTC_MONTH_JANUARY;
-  sDate.Date = 0x1;
-  sDate.Year = 0x0;
+	sDate.WeekDay = RTC_WEEKDAY_MONDAY;
+	sDate.Month = RTC_MONTH_JANUARY;
+	sDate.Date = 0x1;
+	sDate.Year = 0x0;
 
-  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
+	if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
+	{
+	_Error_Handler(__FILE__, __LINE__);
+	}
 
     HAL_RTCEx_BKUPWrite(&hrtc,RTC_BKP_DR0,0x32F2);
   }
 
+  /*##-1- Configure the RTC Alarm peripheral #################################*/
+  /* Set Alarm to 00:00:00
+     RTC Alarm Generation: Alarm on Hours, Minutes and Seconds */
+  salarmstructure.Alarm = RTC_ALARM_A;
+  salarmstructure.AlarmDateWeekDay = RTC_WEEKDAY_MONDAY;
+  salarmstructure.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
+  salarmstructure.AlarmMask = RTC_ALARMMASK_DATEWEEKDAY;
+  salarmstructure.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_NONE;
+  salarmstructure.AlarmTime.TimeFormat = RTC_HOURFORMAT12_AM;
+  salarmstructure.AlarmTime.Hours = 0x00;
+  salarmstructure.AlarmTime.Minutes = 0x00;
+  salarmstructure.AlarmTime.Seconds = 0x00;
+  salarmstructure.AlarmTime.SubSeconds = 0x56;
+
+  if(HAL_RTC_SetAlarm_IT(&hrtc,&salarmstructure,RTC_FORMAT_BCD) != HAL_OK)
+  {
+    /* Initialization Error */
+    Error_Handler();
+  }
+  
+  HAL_NVIC_SetPriority(RTC_Alarm_IRQn, 15, 0);
+  HAL_NVIC_EnableIRQ(RTC_Alarm_IRQn);
 }
 
 void HAL_RTC_MspInit(RTC_HandleTypeDef* rtcHandle)
@@ -134,10 +161,20 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef* rtcHandle)
 
   /* USER CODE END RTC_MspDeInit 1 */
   }
-} 
+}
 
 /* USER CODE BEGIN 1 */
-
+void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
+{
+  /* Prevent unused argument(s) compilation warning */
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  /* NOTE : This function Should not be modified, when the callback is needed,
+            the HAL_RTC_AlarmAEventCallback could be implemented in the user file
+   */
+	
+  xEventGroupSetBitsFromISR(xEventGroup, EVENTS_VOL_UP_BIT, &xHigherPriorityTaskWoken);
+  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
 /* USER CODE END 1 */
 
 /**

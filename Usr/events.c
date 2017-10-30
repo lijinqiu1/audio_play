@@ -7,6 +7,7 @@
 #include "rtc.h"
 
 extern EventGroupHandle_t xEventGroup;
+osThreadId eventsprocessHandle;
 
 //*******************************************************************************
 //负责处理所有的按键事件

@@ -44,6 +44,7 @@ extern DMA_HandleTypeDef hdma_i2s2_ext_rx;
 extern DMA_HandleTypeDef hdma_spi2_rx;
 extern DMA_HandleTypeDef hdma_i2s2_ext_tx;
 #endif
+extern RTC_HandleTypeDef hrtc;
 
 /* USER CODE END 0 */
 
@@ -388,5 +389,16 @@ void EXTI15_10_IRQHandler(void)
 
   /* USER CODE END EXTI15_10_IRQn 1 */
 }
+
+/**
+  * @brief  This function handles RTC Alarm interrupt request.
+  * @param  None
+  * @retval None
+  */
+void RTC_Alarm_IRQHandler(void)
+{
+  HAL_RTC_AlarmIRQHandler(&hrtc);
+}
+
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

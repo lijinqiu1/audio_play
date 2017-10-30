@@ -542,7 +542,7 @@ void AudioPlay_Task(void const * argument)
 			!wavheadrx || !wavheadrx || !rname || !pname)
 	{
 		app_trace_log("error %s,%d\n",__FUNCTION__,__LINE__);
-		goto error2;
+		NVIC_SystemReset();
 	}
 	//默认录音采样率、采样位数
 	wavctrl.bps = 16;
@@ -787,19 +787,15 @@ error1:
 			osDelay(500);
 		}
 	}
-error2:
-    vPortFree(audiodev.i2sbuf1);
-    vPortFree(audiodev.i2sbuf2);
-	vPortFree(audiodev.tbuf);
-    vPortFree(audiodev.file1);
-    vPortFree(audiodev.file2);
-    vPortFree(wavheadrx);
-    vPortFree(pname);
-    vPortFree(rname);
-	for(;;)
-	{
-		osDelay(1000);
-	}
+//    vPortFree(audiodev.i2sbuf1);
+//    vPortFree(audiodev.i2sbuf2);
+//	vPortFree(audiodev.tbuf);
+//    vPortFree(audiodev.file1);
+//    vPortFree(audiodev.file2);
+//    vPortFree(wavheadrx);
+//    vPortFree(pname);
+//    vPortFree(rname);
+//	osThreadTerminate(osThreadGetId());
 }
 
 void HAL_I2SEx_TxRxHalfCpltCallback(I2S_HandleTypeDef * hi2s)
