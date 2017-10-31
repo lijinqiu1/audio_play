@@ -297,6 +297,8 @@ static int8_t CDC_Receive (uint8_t* Buf, uint32_t *Len)
 		tim.Seconds = Buf[8];
 		HAL_RTC_SetTime(&hrtc,&tim,RTC_FORMAT_BIN);
 		HAL_RTC_SetDate(&hrtc,&dat,RTC_FORMAT_BIN);
+		app_trace_log("sync rtc %d-%d-%d-%d,%d:%d:%d\n",dat.Year+2000,dat.Month ,\
+			dat.Date,dat.WeekDay,tim.Hours,tim.Minutes,tim.Seconds);
 		CDC_Transmit(buffer,3);
 		break;
 	}

@@ -347,7 +347,7 @@ void prvKeyDelayCallback(TimerHandle_t xTimer)
 		if(GPIO_Pin== KEY_WAKE_UP_PA0_Pin)
 		{
 			if(!HAL_GPIO_ReadPin(KEY_WAKE_UP_PA0_GPIO_Port,KEY_WAKE_UP_PA0_Pin))
-				xEventGroupSetBits(xEventGroup, EVENTS_FUN_BLE_PAIR_BIT);
+				xEventGroupSetBits(xEventGroup, EVENTS_FUN_USB_BIT);
 		}
 	}
 }

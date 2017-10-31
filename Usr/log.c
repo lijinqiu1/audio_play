@@ -24,13 +24,14 @@ void Log_Record_Task(void const * argument)
 	FIL log_file;
 	DIR recdir;
 	RTC_DateTypeDef dat;
+	RTC_DateTypeDef cur_dat;
 	BaseType_t xStatus;
 	char fname[30];
 	char queuebuf[QUEUE_LOG_ITEM_SIZE];
 	UINT bw;
 	DWORD file_long = 0;
-	EventBits_t xEventGroupValue;
-	const EventBits_t xBitsToWaitFor = (EVENTS_NEW_DAY_BIT);
+//	EventBits_t xEventGroupValue;
+//	const EventBits_t xBitsToWaitFor = (EVENTS_NEW_DAY_BIT);
 	//打开log文件夹，如果没有创建
 	while(f_opendir(&recdir,"0:/LOG"))
 	{
@@ -60,21 +61,9 @@ void Log_Record_Task(void const * argument)
 		xStatus = xQueueReceive(xQueueLog,queuebuf,portMAX_DELAY);
 		if (xStatus == pdPASS)
 		{
-			xEventGroupValue = xEventGroupWaitBits(/* The event group to read. */
-											   xEventGroup,
-											   /* Bits to test. */
-											   xBitsToWaitFor,
-											   /* Clear bits on exit if the
-																						  unblock condition is met. */
-											   pdTRUE,
-											   /* Don't wait for all bits. This
-																						  parameter is set to pdTRUE for the
-																						  second execution. */
-											   pdFALSE,
-											   /* Don't time out. */
-											   0);
 			xSemaphoreTake(xSdioMutex,portMAX_DELAY);
-			if((xEventGroupValue & EVENTS_NEW_DAY_BIT)!=0)
+			HAL_RTC_GetDate(&hrtc,&cur_dat,RTC_FORMAT_BIN);
+			if((cur_dat.Year != dat.Year)||(cur_dat.Month != dat.Month)||(cur_dat.Date != dat.Date))
 			{
 				//新的一天开的新的log文件
 				res = f_close(&log_file);

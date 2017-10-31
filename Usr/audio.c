@@ -57,6 +57,9 @@ static void BT_Power(uint8_t enable)
 		HAL_GPIO_WritePin(RESET_BT_PB11_GPIO_Port,RESET_BT_PB11_Pin,GPIO_PIN_SET);
 		HAL_GPIO_WritePin(MODE_BT_PB10_GPIO_Port,MODE_BT_PB10_Pin,GPIO_PIN_RESET);
 		HAL_GPIO_WritePin(REF_EN_PC4_GPIO_Port,REF_EN_PC4_Pin,GPIO_PIN_SET);
+		HAL_GPIO_WritePin(PAIR_BT_PB1_GPIO_Port,PAIR_BT_PB1_Pin,GPIO_PIN_RESET);
+		osDelay(1000);
+		HAL_GPIO_WritePin(PAIR_BT_PB1_GPIO_Port,PAIR_BT_PB1_Pin,GPIO_PIN_SET);
 	}
 	else
 	{
@@ -371,7 +374,7 @@ void AudioController_Task(void const * argument)
 	const EventBits_t xBitsToWaitFor = (EVENTS_VOL_UP_BIT|
 		                                  EVENTS_VOL_DOWN_BIT|
 		                                  EVENTS_FUN_BLE_CHANGE_BIT|
-		                                  EVENTS_FUN_BLE_PAIR_BIT|
+		                                  EVENTS_FUN_USB_BIT|
 										  EVENTS_ASK_BIT);
 //	const EventBits_t uxAllSyncBits = ( EVENTS_VOL_UP_BIT |
 //										EVENTS_VOL_DOWN_BIT |
@@ -440,15 +443,12 @@ void AudioController_Task(void const * argument)
 			{
 				ble_status = 1;
 				BT_Power(1);
+				sprintf(log,"BLE Pairing");
+				send_log(log);
 			}
 		}
-		if((xEventGroupValue&EVENTS_FUN_BLE_PAIR_BIT)!=0)
-		{//蓝牙配对
-			sprintf(log,"BLE Pairing");
-			send_log(log);
-			HAL_GPIO_WritePin(PAIR_BT_PB1_GPIO_Port,PAIR_BT_PB1_Pin,GPIO_PIN_RESET);
-			osDelay(1000);
-			HAL_GPIO_WritePin(PAIR_BT_PB1_GPIO_Port,PAIR_BT_PB1_Pin,GPIO_PIN_SET);
+		if((xEventGroupValue&EVENTS_FUN_USB_BIT)!=0)
+		{//打开关闭usb
 		}
 		if((xEventGroupValue&EVENTS_ASK_BIT)!=0)
 		{

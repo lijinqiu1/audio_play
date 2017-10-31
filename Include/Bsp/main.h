@@ -153,7 +153,7 @@
 #define EVENTS_VOL_DOWN_BIT                  (1UL <<  1UL)
 #define EVENTS_ASK_BIT                       (1UL <<  2UL)
 #define EVENTS_FUN_BLE_CHANGE_BIT            (1UL <<  3UL)
-#define EVENTS_FUN_BLE_PAIR_BIT              (1UL <<  4UL)
+#define EVENTS_FUN_USB_BIT                   (1UL <<  4UL)
 #define EVENTS_FUN_STOP_BIT                  (1UL <<  5UL)
 #define EVENTS_PLAY_BIT                      (1UL <<  6UL)
 #define EVENTS_RECORD_BIT                    (1UL <<  7UL)
