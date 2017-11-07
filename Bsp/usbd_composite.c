@@ -360,14 +360,14 @@ uint8_t  USBD_Composite_DataIn (USBD_HandleTypeDef *pdev,
   switch(epnum)
   {
       case CDC_INDATA_NUM:
-        pdev->pClassData = pCDCData;
+      	pdev->pClassData = pCDCData;
         pdev->pUserData =  &USBD_CDC_Interface_fops;
-         return(USBD_CDC.DataIn(pdev,epnum));
+        return(USBD_CDC.DataIn(pdev,epnum));
 
       case MSC_INDATA_NUM:
-             pdev->pClassData = pMSCData;
-             pdev->pUserData =  &USBD_Storage_Interface_fops;
-         return(USBD_MSC.DataIn(pdev,epnum));
+        pdev->pClassData = pMSCData;
+      	pdev->pUserData =  &USBD_Storage_Interface_fops;
+        return(USBD_MSC.DataIn(pdev,epnum));
 
       default:
          break;

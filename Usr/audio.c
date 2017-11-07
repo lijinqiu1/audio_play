@@ -449,6 +449,7 @@ void AudioController_Task(void const * argument)
 		}
 		if((xEventGroupValue&EVENTS_FUN_USB_BIT)!=0)
 		{//´ò¿ª¹Ø±Õusb
+			HAL_GPIO_WritePin(GPIOF,GPIO_PIN_6,GPIO_PIN_SET);
 		}
 		if((xEventGroupValue&EVENTS_ASK_BIT)!=0)
 		{
