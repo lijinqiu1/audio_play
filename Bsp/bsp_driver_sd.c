@@ -72,6 +72,7 @@ __align(4) uint8_t SDIO_DATA_BUFFER[512];
 
 /* USER CODE BEGIN BeforeInitSection */
 /* can be used to modify / undefine following code or add code */
+#define SD_MAX_TIMEOUT  100000000
 /* USER CODE END BeforeInitSection */
 /**
   * @brief  Initializes the SD card device.
@@ -191,7 +192,7 @@ uint8_t BSP_SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOf
 {
 	uint8_t *buf = (uint8_t *)pData;
 	uint8_t n = 0;
-	uint32_t timeout = 10000;
+	uint32_t timeout = SD_MAX_TIMEOUT;
 	HAL_SD_StateTypeDef state_return;
 	HAL_SD_CardStateTypeDef sd_card_state_return;
 //	xSemaphoreTake(xSdioMutex,portMAX_DELAY);
@@ -210,13 +211,16 @@ uint8_t BSP_SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOf
 			{
 				return MSD_ERROR;
 			}
-			timeout = 10000;
+			timeout = SD_MAX_TIMEOUT;
 			do
 			{
 				sd_card_state_return = HAL_SD_GetCardState(&hsd);
 				timeout--;
 			}while ((HAL_SD_CARD_TRANSFER != sd_card_state_return) && timeout);
-			if (timeout == 0){return HAL_TIMEOUT;}
+			if (timeout == 0)
+			{
+				return HAL_TIMEOUT;
+			}
 			buf += 512;
 		}
 	}
@@ -235,13 +239,16 @@ uint8_t BSP_SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOf
 		{
 			return MSD_ERROR;
 		}
-		timeout = 10000;
+		timeout = SD_MAX_TIMEOUT;
 		do
 		{
 			sd_card_state_return = HAL_SD_GetCardState(&hsd);
 			timeout--;
 		}while ((HAL_SD_CARD_TRANSFER != sd_card_state_return) && timeout);
-		if (timeout == 0){return HAL_TIMEOUT;}
+		if (timeout == 0)
+		{
+			return HAL_TIMEOUT;
+		}
 	}
 //	xSemaphoreGive(xSdioMutex);
 	return MSD_OK;
@@ -261,7 +268,7 @@ uint8_t BSP_SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t Num
 {
 	uint8_t *buf = (uint8_t *)pData;
 	uint8_t n;
-	uint32_t timeout = 10000;
+	uint32_t timeout = SD_MAX_TIMEOUT;
 	HAL_SD_StateTypeDef state_return;
 	HAL_SD_CardStateTypeDef sd_card_state_return;
 //	xSemaphoreTake(xSdioMutex,portMAX_DELAY);
@@ -275,14 +282,16 @@ uint8_t BSP_SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t Num
 			}
 			do
 			{
+				app_trace_log("%s,%d,%d\n",__FILE__,__LINE__,NumOfBlocks);
 				state_return = HAL_SD_GetState(&hsd);
 				timeout--;
 			}while ((HAL_SD_STATE_BUSY == state_return) && timeout);
 			if (HAL_SD_STATE_READY != state_return)
 			{
+				app_trace_log("%s,%d,%d\n",__FILE__,__LINE__,NumOfBlocks);
 				return MSD_ERROR;
 			}
-			timeout = 10000;
+			timeout = SD_MAX_TIMEOUT;
 			do
 			{
 				sd_card_state_return = HAL_SD_GetCardState(&hsd);
@@ -305,15 +314,20 @@ uint8_t BSP_SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t Num
 		}while ((HAL_SD_STATE_BUSY == state_return) && timeout);
 		if (HAL_SD_STATE_READY != state_return)
 		{
+			app_trace_log("%s,%d,%d\n",__FILE__,__LINE__,NumOfBlocks);
 			return MSD_ERROR;
 		}
-		timeout = 10000;
+		timeout = SD_MAX_TIMEOUT;
 		do
 		{
 			sd_card_state_return = HAL_SD_GetCardState(&hsd);
 			timeout--;
 		}while ((HAL_SD_CARD_TRANSFER != sd_card_state_return) && timeout);
-		if (timeout == 0){return HAL_TIMEOUT;}
+		if (timeout == 0)
+		{
+			app_trace_log("%s,%d,%d\n",__FILE__,__LINE__,NumOfBlocks);
+			return HAL_TIMEOUT;
+		}
 	}
 //	xSemaphoreGive(xSdioMutex);
 	return MSD_OK;

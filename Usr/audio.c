@@ -707,8 +707,8 @@ void AudioPlay_Task(void const * argument)
 		                else
 		                {
 		                    wavsize+=WAV_I2S_RX_DMA_BUFSIZE/2;
+							f_sync(audiodev.file2);
 						}
-						f_sync(audiodev.file2);
 						xSemaphoreGive(xSdioMutex);
 					}
 				}
@@ -729,9 +729,11 @@ void AudioPlay_Task(void const * argument)
 		                else
 		                {
 		                    wavsize+=WAV_I2S_RX_DMA_BUFSIZE/2;
+							f_sync(audiodev.file2);
 						}
-						f_sync(audiodev.file2);
 						xSemaphoreGive(xSdioMutex);
+						if ((wavsize % 409600)==0)
+							app_trace_log("writed :%d %d\n",res,__LINE__);
 					}
 				}
 			}

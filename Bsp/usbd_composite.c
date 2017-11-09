@@ -269,7 +269,10 @@ static uint8_t  USBD_Composite_EP0_RxReady(USBD_HandleTypeDef *pdev)
 */
 static uint8_t  USBD_Composite_Setup (USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
 {
-	printf("%s,wIndex %d bRequest %d\n",__FUNCTION__,req->wIndex,req->bRequest);
+	printf("%s,wIndex 0x%d bmRequest 0x%x bRequest 0x%x wValue 0x%x wLength 0x%x\n",\
+		__FUNCTION__,\
+		req->wIndex,req->bmRequest,req->bRequest,\
+		req->wValue,req->wLength);
 //  switch (req->bmRequest & USB_REQ_RECIPIENT_MASK)
 //  {
 //   case USB_REQ_RECIPIENT_INTERFACE:

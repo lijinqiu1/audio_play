@@ -163,6 +163,34 @@
 #define EVENTS_PLAY_AND_RECORD_END_BIT       (1UL << 11UL)
 #define EVENTS_NEW_DAY_BIT                   (1UL << 12UL)
 
+/* IRQ PRI */
+#define IRQ_PRI_SD_DMA                        0x06
+#define IRQ_SUBPRI_SD_DMA                     0x00
+
+#define IRQ_PRI_SDIO                          0x05
+#define IRQ_SUBPRI_SDIO                       0x00
+
+#define IRQ_PRI_USB_FS                        0x07
+#define IRQ_SUBPRI_USB_FS                     0x00
+
+#define IRQ_PRI_IIS_DMA                       0x08
+#define IRQ_USBPRI_IIS_DMA                    0x00
+
+#define IRQ_PRI_RTC                           0x0E
+#define IRQ_USBPRI_RTC                        0x00
+
+#define IRQ_PRI_RNG                           0x0a
+#define IRQ_SUBPRI_RNG                        0x00
+
+#define IRQ_PRI_EXIT9_5                       0x0b
+#define IRQ_SUBPRI_EXIT9_5                    0x00
+
+#define IRQ_PRI_EXIT0                         0x0b
+#define IRQ_SUBPRI_EXIT0                      0x00
+
+#define IRQ_PRI_EXIT15_10                     0x0b
+#define IRQ_SUBPRI_EXIT15_10                  0x00
+
 /* QUEUE */
 #define QUEUE_LOG_ITEM_SIZE                   70
 #define QUEUE_LOG_ITEM_LENGTH                 10
