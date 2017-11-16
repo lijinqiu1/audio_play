@@ -4,7 +4,7 @@
  *      *** Do not modify ! ***
  *
  * Project: 'playercord' 
- * Target:  'F429_ZET6' 
+ * Target:  'F429_BIT6' 
  */
 
 #ifndef RTE_COMPONENTS_H

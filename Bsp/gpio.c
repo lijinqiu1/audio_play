@@ -93,25 +93,16 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOK_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, PAIR_BT_PB1_Pin|MODE_BT_PB10_Pin|RESET_BT_PB11_Pin|IIC_SCLK_PB8_Pin
+  HAL_GPIO_WritePin(GPIOB, IIC_SCLK_PB8_Pin
                           |IIC_SDA_PB9_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOG, KEY_VOL_UP_PG9_Pin|KEY_ASK_PG10_Pin|KEY_VOL_DOWN_PG11_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(REF_EN_PC4_GPIO_Port,REF_EN_PC4_Pin, GPIO_PIN_RESET);
-
-    /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = REF_EN_PC4_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(REF_EN_PC4_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_WritePin(LED_PD5_GPIO_Port,LED_PD5_Pin,GPIO_PIN_SET);
 
   /*Configure GPIO pins : PBPin PBPin PBPin PBPin
                            PBPin */
-  GPIO_InitStruct.Pin = PAIR_BT_PB1_Pin|MODE_BT_PB10_Pin|RESET_BT_PB11_Pin|IIC_SCLK_PB8_Pin
+  GPIO_InitStruct.Pin = IIC_SCLK_PB8_Pin
                           |IIC_SDA_PB9_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -121,19 +112,19 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = KEY_WAKE_UP_PA0_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(KEY_WAKE_UP_PA0_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = KEY_FUN_PG12_Pin;
+  GPIO_InitStruct.Pin = KEY_FUN_PD7_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(KEY_FUN_PG12_GPIO_Port, &GPIO_InitStruct);
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(KEY_FUN_PD7_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PGPin PGPin PGPin */
   GPIO_InitStruct.Pin = KEY_VOL_UP_PG9_Pin|KEY_ASK_PG10_Pin|KEY_VOL_DOWN_PG11_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
@@ -141,6 +132,12 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(KEY_GPIO_Port, &GPIO_InitStruct);
+  
+  GPIO_InitStruct.Pin = LED_PD5_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(LED_PD5_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, IRQ_PRI_EXIT9_5, IRQ_SUBPRI_EXIT9_5);
@@ -148,6 +145,9 @@ void MX_GPIO_Init(void)
 
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, IRQ_PRI_EXIT15_10, IRQ_SUBPRI_EXIT15_10);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+  
+  HAL_NVIC_SetPriority(EXTI0_IRQn, IRQ_PRI_EXIT0, IRQ_SUBPRI_EXIT0);
+  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 #elif defined(F429_ZET6)
   GPIO_InitTypeDef GPIO_InitStruct;
 
@@ -245,57 +245,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 	key_pressd = GPIO_Pin;
 	xTimerStartFromISR(xKeyDelayTimer,&xHigherPriorityTaskWoken);
-//	if(key_work_status == 1)
-//	{//播放模式
-//		if(GPIO_Pin == KEY_VOL_UP_PG9_Pin)
-//		{
-//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_VOL_UP_BIT, &xHigherPriorityTaskWoken);
-//		}
-//		if(GPIO_Pin == KEY_VOL_DOWN_PG11_Pin)
-//		{
-//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_VOL_DOWN_BIT, &xHigherPriorityTaskWoken);
-//		}
-//		if(GPIO_Pin == KEY_FUN_PG12_Pin)
-//		{
-//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_VOL_UP_BIT, &xHigherPriorityTaskWoken);
-//		}
-//		if(GPIO_Pin == KEY_ASK_PG10_Pin)
-//		{
-//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_ASK_BIT, &xHigherPriorityTaskWoken);
-//		}
-//		if(GPIO_Pin== KEY_WAKE_UP_PA0_Pin)
-//		{
-
-//		}
-//	}
-//	else
-//	{//待机模式
-//		if(GPIO_Pin == KEY_VOL_UP_PG9_Pin)
-//		{
-//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_PLAY_BIT, &xHigherPriorityTaskWoken);
-//		}
-//		if(GPIO_Pin == KEY_VOL_DOWN_PG11_Pin)
-//		{
-//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_RECORD_BIT, &xHigherPriorityTaskWoken);
-//		}
-//		if(GPIO_Pin == KEY_FUN_PG12_Pin)
-//		{
-//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_FUN_BLE_CHANGE_BIT, &xHigherPriorityTaskWoken);
-//		}
-//		if(GPIO_Pin == KEY_ASK_PG10_Pin)
-//		{
-//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_PLAY_AND_RECORD_BIT, &xHigherPriorityTaskWoken);
-//		}
-//		if(GPIO_Pin== KEY_WAKE_UP_PA0_Pin)
-//		{
-//			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_FUN_BLE_PAIR_BIT, &xHigherPriorityTaskWoken);
-//		}
-////		if(GPIO_Pin == KEY_Pin)
-////		{
-////			xEventGroupSetBitsFromISR(xEventGroup, EVENTS_PLAY_AND_RECORD_BIT, &xHigherPriorityTaskWoken);
-////		}
-
-//	}
 	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
@@ -327,7 +276,11 @@ void prvKeyDelayCallback(TimerHandle_t xTimer)
 		}
 		if(GPIO_Pin == KEY_WAKE_UP_PA0_Pin)
 		{
+#if defined(F429_BIT6)
+			if(HAL_GPIO_ReadPin(KEY_WAKE_UP_PA0_GPIO_Port,KEY_WAKE_UP_PA0_Pin))
+#elif defined(F429_ZET6)
 			if(!HAL_GPIO_ReadPin(KEY_WAKE_UP_PA0_GPIO_Port,KEY_WAKE_UP_PA0_Pin))
+#endif
 				xEventGroupSetBits(xEventGroup,EVENTS_FUN_STOP_BIT);
 		}
 	}

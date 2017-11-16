@@ -52,6 +52,7 @@ const uint16_t I2S_PSC_TBL[][5]=
 //1Ê¹ÄÜÀ¶ÑÀÄ£¿é
 static void BT_Power(uint8_t enable)
 {
+#if defined(F429_ZET6)
 	if (enable)
 	{
 		HAL_GPIO_WritePin(RESET_BT_PB11_GPIO_Port,RESET_BT_PB11_Pin,GPIO_PIN_SET);
@@ -65,6 +66,7 @@ static void BT_Power(uint8_t enable)
 	{
 		HAL_GPIO_WritePin(REF_EN_PC4_GPIO_Port,REF_EN_PC4_Pin,GPIO_PIN_RESET);
 	}
+#endif
 }
 static void send_log(char *log)
 {
