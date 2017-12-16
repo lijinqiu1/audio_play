@@ -93,36 +93,36 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOK_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, IIC_SCLK_PB8_Pin
-                          |IIC_SDA_PB9_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, IIC_SCLK_Pin
+                          |IIC_SDA_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, KEY_VOL_UP_PG9_Pin|KEY_ASK_PG10_Pin|KEY_VOL_DOWN_PG11_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(LED_PD5_GPIO_Port,LED_PD5_Pin,GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOG, KEY_VOL_UP_Pin|KEY_ASK_Pin|KEY_VOL_DOWN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_SET);
 
   /*Configure GPIO pins : PBPin PBPin PBPin PBPin
                            PBPin */
-  GPIO_InitStruct.Pin = IIC_SCLK_PB8_Pin
-                          |IIC_SDA_PB9_Pin;
+  GPIO_InitStruct.Pin = IIC_SCLK_Pin
+                          |IIC_SDA_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = KEY_WAKE_UP_PA0_Pin;
+  GPIO_InitStruct.Pin = KEY_WAKE_UP_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(KEY_WAKE_UP_PA0_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = KEY_FUN_PD7_Pin;
+  GPIO_InitStruct.Pin = KEY_FUN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(KEY_FUN_PD7_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PGPin PGPin PGPin */
-  GPIO_InitStruct.Pin = KEY_VOL_UP_PG9_Pin|KEY_ASK_PG10_Pin|KEY_VOL_DOWN_PG11_Pin;
+  GPIO_InitStruct.Pin = KEY_VOL_UP_Pin|KEY_ASK_Pin|KEY_VOL_DOWN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
@@ -133,11 +133,11 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(KEY_GPIO_Port, &GPIO_InitStruct);
   
-  GPIO_InitStruct.Pin = LED_PD5_Pin;
+  GPIO_InitStruct.Pin = LED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LED_PD5_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, IRQ_PRI_EXIT9_5, IRQ_SUBPRI_EXIT9_5);
@@ -165,64 +165,62 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOK_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, PAIR_BT_PB1_Pin|MODE_BT_PB10_Pin|RESET_BT_PB11_Pin|IIC_SCLK_PB8_Pin
-                          |IIC_SDA_PB9_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(PAIR_BT_GPIO_Port,PAIR_BT_Pin,GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(MODE_BT_GPIO_Port,MODE_BT_Pin,GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(RESET_BT_GPIO_Port,RESET_BT_Pin,GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(IIC_SCLK_GPIO_Port,IIC_SCLK_Pin,GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(IIC_SDA_GPIO_Port,IIC_SDA_Pin,GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_SET);
+  HAL_GPIO_WritePin(REF_EN_GPIO_Port,REF_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(USB_CRT_GPIO_Port,USB_CRT_Pin,GPIO_PIN_RESET);
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, KEY_ASK_PG10_Pin|KEY_VOL_DOWN_PG11_Pin, GPIO_PIN_RESET);
-
-  HAL_GPIO_WritePin(LED_PD5_GPIO_Port,LED_PD5_Pin,GPIO_PIN_SET);
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(REF_EN_PC4_GPIO_Port,REF_EN_PC4_Pin, GPIO_PIN_RESET);
-
-  HAL_GPIO_WritePin(GPIOF,GPIO_PIN_6,GPIO_PIN_RESET);
 
     /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = REF_EN_PC4_Pin;
+  GPIO_InitStruct.Pin = REF_EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(REF_EN_PC4_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(REF_EN_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PBPin PBPin PBPin PBPin
                            PBPin */
-  GPIO_InitStruct.Pin = PAIR_BT_PB1_Pin|MODE_BT_PB10_Pin|RESET_BT_PB11_Pin|IIC_SCLK_PB8_Pin
-                          |IIC_SDA_PB9_Pin;
+  GPIO_InitStruct.Pin = PAIR_BT_Pin|MODE_BT_Pin|RESET_BT_Pin|IIC_SCLK_Pin
+                          |IIC_SDA_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  GPIO_InitStruct.Pin = LED_PD5_Pin;
+  GPIO_InitStruct.Pin = LED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LED_PD5_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = KEY_WAKE_UP_PA0_Pin;
+  GPIO_InitStruct.Pin = KEY_WAKE_UP_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(KEY_WAKE_UP_PA0_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(KEY_WAKE_UP_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = KEY_FUN_PD7_Pin;
+  GPIO_InitStruct.Pin = KEY_FUN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  HAL_GPIO_Init(KEY_FUN_PD7_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(KEY_FUN_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PGPin PGPin PGPin */
-  GPIO_InitStruct.Pin = KEY_VOL_UP_PG9_Pin|KEY_ASK_PG10_Pin|KEY_VOL_DOWN_PG11_Pin;
+  GPIO_InitStruct.Pin = KEY_VOL_UP_Pin|KEY_ASK_Pin|KEY_VOL_DOWN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
   /*Usb connect pin*/
-  GPIO_InitStruct.Pin = GPIO_PIN_6;
+  GPIO_InitStruct.Pin = USB_CRT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
-  HAL_GPIO_Init(GPIOF,&GPIO_InitStruct);
+  HAL_GPIO_Init(USB_CRT_GPIO_Port,&GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, IRQ_PRI_EXIT9_5, IRQ_SUBPRI_EXIT9_5);
@@ -255,60 +253,60 @@ void prvKeyDelayCallback(TimerHandle_t xTimer)
 	GPIO_Pin = key_pressd;
 	if(key_work_status == 1)
 	{//播放模式
-		if(GPIO_Pin == KEY_VOL_UP_PG9_Pin)
+		if(GPIO_Pin == KEY_VOL_UP_Pin)
 		{
-			if(HAL_GPIO_ReadPin(KEY_VOL_UP_PG9_GPIO_Port,KEY_VOL_UP_PG9_Pin))
+			if(HAL_GPIO_ReadPin(KEY_VOL_UP_GPIO_Port,KEY_VOL_UP_Pin))
 				xEventGroupSetBits(xEventGroup, EVENTS_VOL_UP_BIT);
 		}
-		if(GPIO_Pin == KEY_VOL_DOWN_PG11_Pin)
+		if(GPIO_Pin == KEY_VOL_DOWN_Pin)
 		{
-			if(HAL_GPIO_ReadPin(KEY_VOL_DOWN_PG11_GPIO_Port,KEY_VOL_DOWN_PG11_Pin))
+			if(HAL_GPIO_ReadPin(KEY_VOL_DOWN_GPIO_Port,KEY_VOL_DOWN_Pin))
 				xEventGroupSetBits(xEventGroup, EVENTS_VOL_DOWN_BIT);
 		}
-		if(GPIO_Pin == KEY_FUN_PD7_Pin)
+		if(GPIO_Pin == KEY_FUN_Pin)
 		{
 
 		}
-		if(GPIO_Pin == KEY_ASK_PG10_Pin)
+		if(GPIO_Pin == KEY_ASK_Pin)
 		{
-			if(HAL_GPIO_ReadPin(KEY_ASK_PG10_GPIO_Port,KEY_ASK_PG10_Pin))
+			if(HAL_GPIO_ReadPin(KEY_ASK_GPIO_Port,KEY_ASK_Pin))
 				xEventGroupSetBits(xEventGroup, EVENTS_ASK_BIT);
 		}
-		if(GPIO_Pin == KEY_WAKE_UP_PA0_Pin)
+		if(GPIO_Pin == KEY_WAKE_UP_Pin)
 		{
 #if defined(F429_BIT6)
-			if(HAL_GPIO_ReadPin(KEY_WAKE_UP_PA0_GPIO_Port,KEY_WAKE_UP_PA0_Pin))
+			if(HAL_GPIO_ReadPin(KEY_WAKE_UP_GPIO_Port,KEY_WAKE_UP_Pin))
 #elif defined(F429_ZET6)
-			if(!HAL_GPIO_ReadPin(KEY_WAKE_UP_PA0_GPIO_Port,KEY_WAKE_UP_PA0_Pin))
+			if(!HAL_GPIO_ReadPin(KEY_WAKE_UP_GPIO_Port,KEY_WAKE_UP_Pin))
 #endif
 				xEventGroupSetBits(xEventGroup,EVENTS_FUN_STOP_BIT);
 		}
 	}
 	else
 	{//待机模式
-		if(GPIO_Pin == KEY_VOL_UP_PG9_Pin)
+		if(GPIO_Pin == KEY_VOL_UP_Pin)
 		{
-			if(HAL_GPIO_ReadPin(KEY_VOL_UP_PG9_GPIO_Port,KEY_VOL_UP_PG9_Pin))
+			if(HAL_GPIO_ReadPin(KEY_VOL_UP_GPIO_Port,KEY_VOL_UP_Pin))
 				xEventGroupSetBits(xEventGroup, EVENTS_PLAY_BIT);
 		}
-		if(GPIO_Pin == KEY_VOL_DOWN_PG11_Pin)
+		if(GPIO_Pin == KEY_VOL_DOWN_Pin)
 		{
-			if(HAL_GPIO_ReadPin(KEY_VOL_DOWN_PG11_GPIO_Port,KEY_VOL_DOWN_PG11_Pin))
+			if(HAL_GPIO_ReadPin(KEY_VOL_DOWN_GPIO_Port,KEY_VOL_DOWN_Pin))
 				xEventGroupSetBits(xEventGroup, EVENTS_RECORD_BIT);
 		}
-		if(GPIO_Pin == KEY_FUN_PD7_Pin)
+		if(GPIO_Pin == KEY_FUN_Pin)
 		{
-			if(HAL_GPIO_ReadPin(KEY_FUN_PD7_GPIO_Port,KEY_FUN_PD7_Pin))
+			if(HAL_GPIO_ReadPin(KEY_FUN_GPIO_Port,KEY_FUN_Pin))
 				xEventGroupSetBits(xEventGroup, EVENTS_FUN_BLE_CHANGE_BIT);
 		}
-		if(GPIO_Pin == KEY_ASK_PG10_Pin)
+		if(GPIO_Pin == KEY_ASK_Pin)
 		{
-			if(HAL_GPIO_ReadPin(KEY_ASK_PG10_GPIO_Port,KEY_ASK_PG10_Pin))
+			if(HAL_GPIO_ReadPin(KEY_ASK_GPIO_Port,KEY_ASK_Pin))
 				xEventGroupSetBits(xEventGroup, EVENTS_PLAY_AND_RECORD_BIT);
 		}
-		if(GPIO_Pin== KEY_WAKE_UP_PA0_Pin)
+		if(GPIO_Pin== KEY_WAKE_UP_Pin)
 		{
-			if(!HAL_GPIO_ReadPin(KEY_WAKE_UP_PA0_GPIO_Port,KEY_WAKE_UP_PA0_Pin))
+			if(!HAL_GPIO_ReadPin(KEY_WAKE_UP_GPIO_Port,KEY_WAKE_UP_Pin))
 				xEventGroupSetBits(xEventGroup, EVENTS_FUN_USB_BIT);
 		}
 	}
