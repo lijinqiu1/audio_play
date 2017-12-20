@@ -55,6 +55,7 @@
 #include "audio.h"
 #include "log.h"
 #include "events.h"
+#include "display.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
@@ -72,6 +73,7 @@ extern osThreadId audioplayTaskHandle;
 extern osThreadId audiocontrollerHandle;
 extern osThreadId logrecordHandle;
 extern osThreadId eventsprocessHandle;
+extern osThreadId displayprocessHandle;
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
@@ -129,7 +131,10 @@ void MX_FREERTOS_Init(void) {
   logrecordHandle = osThreadCreate(osThread(logrecordTask),NULL);
   /*事件处理线程*/
   osThreadDef(eventsprocessTask,Events_Process_Task,osPriorityBelowNormal,0,512);
-  eventsprocessHandle = osThreadCreate(osThread(eventsprocessTask),NULL);
+  eventsprocessHandle = osThreadCreate(osThread(eventsprocessTask),NULL);  
+  /*oled显示线程*/
+  osThreadDef(displayprocessTask, Display_Process_Task, osPriorityBelowNormal, 0, 512);
+  displayprocessHandle = osThreadCreate(osThread(displayprocessTask), NULL);
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
