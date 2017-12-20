@@ -59,6 +59,7 @@
 #include "fmc.h"
 #include "rng.h"
 #include "main.h"
+#include "spi.h"
 /* USER CODE BEGIN Includes */
 #include "myiic.h"
 #include "usb_device.h"
@@ -169,6 +170,7 @@ int main(void)
   MX_I2S2_Init();
   MX_RNG_Init();
   MX_USB_DEVICE_Init();
+  MX_SPI4_Init();
   /* USER CODE BEGIN 2 */
   IIC_Init();
   app_trace_log("hello!\n");

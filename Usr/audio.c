@@ -55,16 +55,16 @@ static void BT_Power(uint8_t enable)
 #if defined(F429_ZET6)
 	if (enable)
 	{
-		HAL_GPIO_WritePin(RESET_BT_PB11_GPIO_Port,RESET_BT_PB11_Pin,GPIO_PIN_SET);
-		HAL_GPIO_WritePin(MODE_BT_PB10_GPIO_Port,MODE_BT_PB10_Pin,GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(REF_EN_PC4_GPIO_Port,REF_EN_PC4_Pin,GPIO_PIN_SET);
-		HAL_GPIO_WritePin(PAIR_BT_PB1_GPIO_Port,PAIR_BT_PB1_Pin,GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(RESET_BT_GPIO_Port,RESET_BT_Pin,GPIO_PIN_SET);
+		HAL_GPIO_WritePin(MODE_BT_GPIO_Port,MODE_BT_Pin,GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(REF_EN_GPIO_Port,REF_EN_Pin,GPIO_PIN_SET);
+		HAL_GPIO_WritePin(PAIR_BT_GPIO_Port,PAIR_BT_Pin,GPIO_PIN_RESET);
 		osDelay(1000);
-		HAL_GPIO_WritePin(PAIR_BT_PB1_GPIO_Port,PAIR_BT_PB1_Pin,GPIO_PIN_SET);
+		HAL_GPIO_WritePin(PAIR_BT_GPIO_Port,PAIR_BT_Pin,GPIO_PIN_SET);
 	}
 	else
 	{
-		HAL_GPIO_WritePin(REF_EN_PC4_GPIO_Port,REF_EN_PC4_Pin,GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(REF_EN_GPIO_Port,REF_EN_Pin,GPIO_PIN_RESET);
 	}
 #endif
 }
@@ -372,6 +372,7 @@ void AudioController_Task(void const * argument)
 {
 	EventBits_t xEventGroupValue;
 	char log[40];
+	static uint8_t usb_status = 0;
 	static uint8_t ble_status = 0;//蓝牙状态，初始状态蓝牙关闭
 	const EventBits_t xBitsToWaitFor = (EVENTS_VOL_UP_BIT|
 		                                  EVENTS_VOL_DOWN_BIT|
@@ -451,7 +452,16 @@ void AudioController_Task(void const * argument)
 		}
 		if((xEventGroupValue&EVENTS_FUN_USB_BIT)!=0)
 		{//打开关闭usb
-			HAL_GPIO_WritePin(GPIOF,GPIO_PIN_6,GPIO_PIN_SET);
+			if (usb_status == 1)
+			{
+				HAL_GPIO_WritePin(USB_CRT_GPIO_Port,USB_CRT_Pin,GPIO_PIN_SET);
+				usb_status = 0;
+			}
+			else
+			{
+				HAL_GPIO_WritePin(USB_CRT_GPIO_Port,USB_CRT_Pin,GPIO_PIN_RESET);
+				usb_status = 1;
+			}
 		}
 		if((xEventGroupValue&EVENTS_ASK_BIT)!=0)
 		{
@@ -669,7 +679,7 @@ void AudioPlay_Task(void const * argument)
 			//进入播放模式
 			key_work_status = 1;
 			stop_play_record = 0;
-			HAL_GPIO_WritePin(LED_PD5_GPIO_Port,LED_PD5_Pin,GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_RESET);
 		}
 
 		if ((xEventGroupValue & EVENTS_FUN_STOP_BIT) != 0)
@@ -783,7 +793,7 @@ error1:
 				play_begin = 0; //关闭播放
 				record_begin = 0; //关闭录音
 				key_work_status = 0;//进入待机模式
-				HAL_GPIO_WritePin(LED_PD5_GPIO_Port,LED_PD5_Pin,GPIO_PIN_SET);
+				HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_SET);
 			}
 		}
 		else

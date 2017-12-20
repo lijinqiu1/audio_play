@@ -132,7 +132,7 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(KEY_GPIO_Port, &GPIO_InitStruct);
-  
+
   GPIO_InitStruct.Pin = LED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -145,7 +145,7 @@ void MX_GPIO_Init(void)
 
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, IRQ_PRI_EXIT15_10, IRQ_SUBPRI_EXIT15_10);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
-  
+
   HAL_NVIC_SetPriority(EXTI0_IRQn, IRQ_PRI_EXIT0, IRQ_SUBPRI_EXIT0);
   HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 #elif defined(F429_ZET6)
@@ -172,7 +172,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(IIC_SDA_GPIO_Port,IIC_SDA_Pin,GPIO_PIN_RESET);
   HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_SET);
   HAL_GPIO_WritePin(REF_EN_GPIO_Port,REF_EN_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(USB_CRT_GPIO_Port,USB_CRT_Pin,GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(USB_CRT_GPIO_Port,USB_CRT_Pin,GPIO_PIN_SET);
 
 
     /*Configure GPIO pin : PtPin */
@@ -217,8 +217,8 @@ void MX_GPIO_Init(void)
 
   /*Usb connect pin*/
   GPIO_InitStruct.Pin = USB_CRT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
   HAL_GPIO_Init(USB_CRT_GPIO_Port,&GPIO_InitStruct);
 
