@@ -3,11 +3,20 @@
 #include "display.h"
 #include "oled.h"
 #include "bmp.h"
+#include "rtc.h"
 #include "cmsis_os.h"
 
 
 osThreadId displayprocessHandle;
 
+void Display_Time(void)
+{
+	uint8_t time_buffer[6];
+	RTC_TimeTypeDef tim;
+	HAL_RTC_GetTime(&hrtc,&tim,RTC_FORMAT_BIN);
+	sprintf(time_buffer,"%2d:%2d",tim.Hours,tim.Seconds);
+	OLED_ShowString(DISPLAY_TIME_X,DISPLAY_TIME_Y,time_buffer,12);
+}
 
 void Display_Process_Task(void const * argument)
 {
@@ -19,7 +28,7 @@ void Display_Process_Task(void const * argument)
     while(1)
     {
 		OLED_Clear();
-	 
+
 		OLED_ShowCHinese(8,0,0);//ÖÐ
 		OLED_ShowCHinese(26,0,1);//¾°
 		OLED_ShowCHinese(44,0,2);//Ô°
