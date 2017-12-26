@@ -147,7 +147,8 @@
 #define EVENTS_RECORD_END_BIT                (1UL << 10UL)
 #define EVENTS_PLAY_AND_RECORD_END_BIT       (1UL << 11UL)
 #define EVENTS_NEW_DAY_BIT                   (1UL << 12UL)
-#define EVENTS_PLAY_NEW_SONG_BIT             (1UL << 12UL)
+#define EVENTS_PLAY_NEW_SONG_BIT             (1UL << 13UL)
+#define EVENTS_TASK_LOG_CREATE               (1UL << 14UL)
 
 /* IRQ PRI */
 #define IRQ_PRI_SD_DMA                        0x03

@@ -324,6 +324,7 @@ static void recoder_new_pathname(uint8_t *pname)
 
 	sprintf((char*)pname,"%04d-%02d-%02d-%02d-%02d-%02d.wav",\
 		 dat.Year+2000,dat.Month,dat.Date,tim.Hours,tim.Minutes,tim.Seconds);
+    app_trace_log("%s\n",pname);
 }
 
 static void task_log_new_pathname(uint8_t *pname)
@@ -335,6 +336,7 @@ static void task_log_new_pathname(uint8_t *pname)
 
 	sprintf((char*)pname,"%04d-%02d-%02d-%02d-%02d-%02d.txt",\
 		 dat.Year+2000,dat.Month,dat.Date,tim.Hours,tim.Minutes,tim.Seconds);
+    app_trace_log("%s\n",pname);
 }
 //初始化WAV头.
 void recoder_wav_init(__WaveHeader* wavhead,uint32_t DataFormat,uint32_t AudioFreq) //初始化WAV头
@@ -447,22 +449,9 @@ void AudioController_Task(void const * argument)
 		                                  EVENTS_FUN_BLE_CHANGE_BIT|
 		                                  EVENTS_FUN_USB_BIT|
 										  EVENTS_ASK_BIT|
-										  EVENTS_PLAY_AND_RECORD_BIT|
 										  EVENTS_PLAY_AND_RECORD_END_BIT|
 										  EVENTS_PLAY_NEW_SONG_BIT|
-										  EVENTS_FUN_STOP_BIT);
-//	const EventBits_t uxAllSyncBits = ( EVENTS_VOL_UP_BIT |
-//										EVENTS_VOL_DOWN_BIT |
-//										EVENTS_FUN_STOP_BIT |
-//										EVENTS_PLAY_BIT |
-//										EVENTS_RECORD_BIT |
-//										EVENTS_PLAY_AND_RECORD_BIT |
-//										EVENTS_PLAY_END_BIT |
-//										EVENTS_RECORD_BIT |
-//										EVENTS_PLAY_AND_RECORD_BIT |
-//										EVENTS_ASK_BIT |
-//										EVENTS_FUN_BLE_OPEN_BIT|
-//										EVENTS_FUN_BLE_CLOSE_BIT);
+										  EVENTS_TASK_LOG_CREATE);
 	for(;;)
 	{
 		//堵塞模式
@@ -479,6 +468,7 @@ void AudioController_Task(void const * argument)
 											   pdFALSE,
 											   /* Don't time out. */
 											   portMAX_DELAY);
+
 		if((xEventGroupValue&EVENTS_VOL_UP_BIT)!=0)
 		{//音量增加
 			volume+=5;
@@ -544,7 +534,7 @@ void AudioController_Task(void const * argument)
 			save_task_log(&log_fil,log);
 			app_trace_log("report\n");
 		}
-		if(xEventGroupValue&EVENTS_PLAY_AND_RECORD_BIT)
+		if(xEventGroupValue&EVENTS_TASK_LOG_CREATE)
 		{//创建任务记录文件
 			task_log_new_pathname((uint8_t *)log_fil_name);
 			//打开录音文件
@@ -712,7 +702,7 @@ void AudioPlay_With_List_Task(void const *argument)
 	__WaveHeader *wavheadrx;
 	__wavctrl wavctrl;		//WAV控制结构体
 	//文件总数
-	uint8_t file_count= Get_Song_Count();
+	uint8_t file_count = 0;
 	//录音文件名
 	uint8_t *rname;
 	//播放文件名
@@ -744,6 +734,8 @@ void AudioPlay_With_List_Task(void const *argument)
 	}
 	f_closedir(&recdir);
     WM8978_Init();
+    //获取播放文件数目
+    file_count = Get_Song_Count();
 	//申请播放缓存
 	audiodev.file1=(FIL*)pvPortMalloc(sizeof(FIL));
 	//申请录音缓存
@@ -761,7 +753,7 @@ void AudioPlay_With_List_Task(void const *argument)
 	//申请播放文件名
 	pname = pvPortMalloc(40);
 	//申请播放列表
-	play_list = pvPortMalloc(file_count);
+	play_list = pvPortMalloc((file_count/8 + 1)*8);
 	if(!audiodev.file1 || !audiodev.file2 || !audiodev.i2sbuf1 || !audiodev.i2sbuf2 || !audiodev.tbuf ||\
 			!wavheadrx || !wavheadrx || !rname || !pname || !play_list)
 	{
@@ -883,6 +875,7 @@ void AudioPlay_With_List_Task(void const *argument)
 			key_work_status = 1;
 			stop_play_record = 0;
 			HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_RESET);
+            xEventGroupSetBits(xEventGroup, EVENTS_TASK_LOG_CREATE);
 		}
 		if ((xEventGroupValue & EVENTS_FUN_STOP_BIT) != 0)
 		{//停止播放
@@ -909,7 +902,6 @@ void AudioPlay_With_List_Task(void const *argument)
 						}
 						//获取下一个播放文件
 						sprintf((char*)pname,"%03d.wav",play_list[cur_file_index]);
-						cur_file_index ++;
 						//获得文件路径
 						strcpy((char *)path,MUSIC_PATH);
 						strcat((char *)path,(const TCHAR*)pname);
