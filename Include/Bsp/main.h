@@ -57,6 +57,12 @@
 #include <stdint.h>
 /* USER CODE END Includes */
 
+#if !defined (PLAY_WITH_LIST) && !defined(PLAY_WITH_RNG)
+	#define PLAY_WITH_LIST
+#elif defined (PLAY_WITH_LIST) && defined(PLAY_WITH_RNG)
+	#undef PLAY_WITH_RNG
+#endif
+
 /* Private define ------------------------------------------------------------*/
 #if defined(F429_BIT6)
 #define KEY_Pin GPIO_PIN_8
@@ -141,6 +147,7 @@
 #define EVENTS_RECORD_END_BIT                (1UL << 10UL)
 #define EVENTS_PLAY_AND_RECORD_END_BIT       (1UL << 11UL)
 #define EVENTS_NEW_DAY_BIT                   (1UL << 12UL)
+#define EVENTS_PLAY_NEW_SONG_BIT             (1UL << 12UL)
 
 /* IRQ PRI */
 #define IRQ_PRI_SD_DMA                        0x03

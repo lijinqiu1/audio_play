@@ -141,12 +141,12 @@ void OLED_ShowNum(uint8_t x,uint8_t y,uint32_t num,uint8_t len,uint8_t size)
 		{
 			if(temp==0)
 			{
-				OLED_ShowChar(x+(size/2)*t,y,' ');
+				OLED_ShowChar(x+(size/2)*t,y,' ',size);
 				continue;
 			}else enshow=1;
 
 		}
-	 	OLED_ShowChar(x+(size/2)*t,y,temp+'0');
+	 	OLED_ShowChar(x+(size/2)*t,y,temp+'0',size);
 	}
 }
 //ÏÔÊ¾Ò»¸ö×Ö·ûºÅ´®
@@ -155,7 +155,7 @@ void OLED_ShowString(uint8_t x,uint8_t y,uint8_t *chr,uint8_t size)
 	unsigned char j=0;
 	while (chr[j]!='\0')
 	{
-		OLED_ShowChar(x,y,chr[j]);
+		OLED_ShowChar(x,y,chr[j],size);
 		x+=8;
 		if(x>120){x=0;y+=2;}
 			j++;

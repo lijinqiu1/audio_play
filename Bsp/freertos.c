@@ -69,7 +69,11 @@ SemaphoreHandle_t xSdioMutex;
 
 extern QueueHandle_t xQueueLog;
 
+#if defined(PLAY_WITH_LIST)
+extern osThreadId audioplaywithlistTaskHandle;
+#elif defined(PLAY_WITH_RNG)
 extern osThreadId audioplayTaskHandle;
+#endif
 extern osThreadId audiocontrollerHandle;
 extern osThreadId logrecordHandle;
 extern osThreadId eventsprocessHandle;
@@ -121,8 +125,13 @@ void MX_FREERTOS_Init(void) {
   /* add threads, ... */
 
   /*录音、播放线程*/
+  #if defined(PLAY_WITH_LIST)
+  osThreadDef(audioplaywithlistTask,AudioPlay_With_List_Task,osPriorityHigh,0,4096);
+  audioplaywithlistTaskHandle = osThreadCreate(osThread(audioplaywithlistTask),NULL);
+  #elif defined(PLAY_WITH_RNG)
   osThreadDef(audioplayTask,AudioPlay_Task,osPriorityHigh,0,4096);
   audioplayTaskHandle = osThreadCreate(osThread(audioplayTask),NULL);
+  #endif
   /*音频控制线程*/
   osThreadDef(audiocontrollerTask,AudioController_Task,osPriorityBelowNormal,0,1024);
   audiocontrollerHandle = osThreadCreate(osThread(audiocontrollerTask),NULL);
@@ -131,7 +140,7 @@ void MX_FREERTOS_Init(void) {
   logrecordHandle = osThreadCreate(osThread(logrecordTask),NULL);
   /*事件处理线程*/
   osThreadDef(eventsprocessTask,Events_Process_Task,osPriorityBelowNormal,0,512);
-  eventsprocessHandle = osThreadCreate(osThread(eventsprocessTask),NULL);  
+  eventsprocessHandle = osThreadCreate(osThread(eventsprocessTask),NULL);
   /*oled显示线程*/
   osThreadDef(displayprocessTask, Display_Process_Task, osPriorityBelowNormal, 0, 512);
   displayprocessHandle = osThreadCreate(osThread(displayprocessTask), NULL);

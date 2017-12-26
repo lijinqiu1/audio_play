@@ -107,8 +107,12 @@ typedef __packed struct
 }__audiodev;
 
 void AudioPlay_Task(void const * argument);
-void AudioController_Task(void const * argument);
-
+#if defined(PLAY_WITH_LIST)
+void AudioPlay_With_List_Task(void const * argument);
+#elif defined(PLAY_WITH_RNG)
+void AudioPlay_Task(void const * argument);
+#endif
+void AudioController_Task(void const *argument);
 #endif
 
 
