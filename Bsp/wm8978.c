@@ -43,7 +43,7 @@ uint8_t WM8978_Init(void)
 	WM8978_Write_Reg(1,0XDB);	//R1,OUT3\4MIXEN设置为1使能,MICEN设置为1(MIC使能),BIASEN设置为1(模拟器工作),VMIDSEL[1:0]设置为:11(5K)
 //	WM8978_Write_Reg(1,0X1B);	//R1,MICEN设置为1(MIC使能),BIASEN设置为1(模拟器工作),VMIDSEL[1:0]设置为:11(5K)
 	WM8978_Write_Reg(2,0X1B0);	//R2,ROUT1,LOUT1输出使能(耳机可以工作),BOOSTENR,BOOSTENL使能
- 	WM8978_Write_Reg(3,0X18C);	//R3,LOUT2,ROUT2输出使能(喇叭工作),RMIX,LMIX使能,OUT3/4使能
+ 	WM8978_Write_Reg(3,0X1EC);	//R3,LOUT2,ROUT2输出使能(喇叭工作),RMIX,LMIX使能,OUT3/4使能
 //	WM8978_Write_Reg(3,0X6C);	//R3,LOUT2,ROUT2输出使能(喇叭工作),RMIX,LMIX使能	
 	WM8978_Write_Reg(6,0);		//R6,MCLK由外部提供
 	WM8978_Write_Reg(43,1<<4);	//R43,INVROUT2反向,驱动喇叭

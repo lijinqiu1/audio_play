@@ -293,12 +293,11 @@ void prvKeyDelayCallback(TimerHandle_t xTimer)
 		if(GPIO_Pin == KEY_VOL_UP_Pin)
 		{
 			if(HAL_GPIO_ReadPin(KEY_VOL_UP_GPIO_Port,KEY_VOL_UP_Pin))
-				xEventGroupSetBits(xEventGroup, EVENTS_PLAY_BIT);
+				xEventGroupSetBits(xEventGroup, EVENTS_FUN_USB_BIT);
 		}
 		if(GPIO_Pin == KEY_VOL_DOWN_Pin)
 		{
-			if(HAL_GPIO_ReadPin(KEY_VOL_DOWN_GPIO_Port,KEY_VOL_DOWN_Pin))
-				xEventGroupSetBits(xEventGroup, EVENTS_RECORD_BIT);
+            
 		}
 		if(GPIO_Pin == KEY_FUN_Pin)
 		{
@@ -313,7 +312,7 @@ void prvKeyDelayCallback(TimerHandle_t xTimer)
 		if(GPIO_Pin== KEY_WAKE_UP_Pin)
 		{
 			if(!HAL_GPIO_ReadPin(KEY_WAKE_UP_GPIO_Port,KEY_WAKE_UP_Pin))
-				xEventGroupSetBits(xEventGroup, EVENTS_FUN_USB_BIT);
+				xEventGroupSetBits(xEventGroup, EVENTS_BLE_PAIR);
 		}
 	}
 }

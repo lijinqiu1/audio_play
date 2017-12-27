@@ -149,6 +149,7 @@
 #define EVENTS_NEW_DAY_BIT                   (1UL << 12UL)
 #define EVENTS_PLAY_NEW_SONG_BIT             (1UL << 13UL)
 #define EVENTS_TASK_LOG_CREATE               (1UL << 14UL)
+#define EVENTS_BLE_PAIR                      (1UL << 15UL)
 
 /* IRQ PRI */
 #define IRQ_PRI_SD_DMA                        0x03

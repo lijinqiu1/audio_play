@@ -76,7 +76,6 @@ extern osThreadId audioplayTaskHandle;
 #endif
 extern osThreadId audiocontrollerHandle;
 extern osThreadId logrecordHandle;
-extern osThreadId eventsprocessHandle;
 extern osThreadId displayprocessHandle;
 /* USER CODE END Variables */
 
@@ -138,9 +137,6 @@ void MX_FREERTOS_Init(void) {
   /*log线程*/
   osThreadDef(logrecordTask,Log_Record_Task,osPriorityNormal,0,1024);
   logrecordHandle = osThreadCreate(osThread(logrecordTask),NULL);
-  /*事件处理线程*/
-  osThreadDef(eventsprocessTask,Events_Process_Task,osPriorityBelowNormal,0,512);
-  eventsprocessHandle = osThreadCreate(osThread(eventsprocessTask),NULL);
   /*oled显示线程*/
   osThreadDef(displayprocessTask, Display_Process_Task, osPriorityBelowNormal, 0, 512);
   displayprocessHandle = osThreadCreate(osThread(displayprocessTask), NULL);
