@@ -443,12 +443,13 @@ void AudioController_Task(void const * argument)
 	const EventBits_t xBitsToWaitFor = (EVENTS_VOL_UP_BIT|
 		                                  EVENTS_VOL_DOWN_BIT|
 		                                  EVENTS_FUN_BLE_CHANGE_BIT|
-		                                  EVENTS_BLE_PAIR|
+		                                  EVENTS_BLE_PAIR_BIT|
 		                                  EVENTS_FUN_USB_BIT|
 										  EVENTS_ASK_BIT|
 										  EVENTS_PLAY_AND_RECORD_END_BIT|
 										  EVENTS_PLAY_NEW_SONG_BIT|
-										  EVENTS_TASK_LOG_CREATE);
+										  EVENTS_TASK_LOG_CREATE_BIT|
+										  EVENTS_PLAY_CASE_BIT);
 	for(;;)
 	{
 		//堵塞模式
@@ -513,7 +514,7 @@ void AudioController_Task(void const * argument)
 				send_log(log);
 			}
 		}
-        if((xEventGroupValue&EVENTS_BLE_PAIR)!=0)
+        if((xEventGroupValue&EVENTS_BLE_PAIR_BIT)!=0)
         {
             if (ble_status == 0)
             {
@@ -543,7 +544,7 @@ void AudioController_Task(void const * argument)
 			save_task_log(&log_fil,log);
 			app_trace_log("report\n");
 		}
-		if(xEventGroupValue&EVENTS_TASK_LOG_CREATE)
+		if(xEventGroupValue&EVENTS_TASK_LOG_CREATE_BIT)
 		{//创建任务记录文件
 			task_log_new_pathname((uint8_t *)log_fil_name);
 			//打开录音文件
@@ -553,8 +554,8 @@ void AudioController_Task(void const * argument)
 			if (res != FR_OK)
 			{
 				app_trace_log("error:%x ,%s,%d\n",res,__FUNCTION__,__LINE__);
-				continue;
 			}
+            app_trace_log("task log create\n");
 		}
 		if(xEventGroupValue&EVENTS_PLAY_AND_RECORD_END_BIT)
 		{//任务结束
@@ -564,19 +565,14 @@ void AudioController_Task(void const * argument)
 			if (res != FR_OK)
 			{
 				app_trace_log("error:%x ,%s,%d\n",res,__FUNCTION__,__LINE__);
-				continue;
 			}
+            app_trace_log("Task Completed\n");
 		}
-		if(xEventGroupValue&EVENTS_FUN_STOP_BIT)
+		if(xEventGroupValue&EVENTS_PLAY_CASE_BIT)
 		{//任务取消
 			sprintf(log,"Task Case");
 			save_task_log(&log_fil,log);
-			res=f_close(&log_fil);
-			if (res != FR_OK)
-			{
-				app_trace_log("error:%x ,%s,%d\n",res,__FUNCTION__,__LINE__);
-				continue;
-			}
+            app_trace_log("Task Case\n");
 		}
 		if(xEventGroupValue & EVENTS_PLAY_NEW_SONG_BIT)
 		{//播放下一曲
@@ -884,11 +880,12 @@ void AudioPlay_With_List_Task(void const *argument)
 			key_work_status = 1;
 			stop_play_record = 0;
 			HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_RESET);
-            xEventGroupSetBits(xEventGroup, EVENTS_TASK_LOG_CREATE);
+            xEventGroupSetBits(xEventGroup, EVENTS_TASK_LOG_CREATE_BIT);
 		}
 		if ((xEventGroupValue & EVENTS_FUN_STOP_BIT) != 0)
 		{//停止播放
 			stop_play_record = 1;
+            xEventGroupSetBits(xEventGroup, EVENTS_PLAY_CASE_BIT);
 			app_trace_log("play stop\n");
 			goto end;
 		}
@@ -908,6 +905,7 @@ void AudioPlay_With_List_Task(void const *argument)
 						if (res != FR_OK)
 						{
 							app_trace_log("%s,%d,error %d\n",__FUNCTION__,__LINE__,res);
+                            goto end;
 						}
 						//获取下一个播放文件
 						sprintf((char*)pname,"%03d.wav",play_list[cur_file_index]);
@@ -921,7 +919,7 @@ void AudioPlay_With_List_Task(void const *argument)
 						if (res != FR_OK)
 						{
 							app_trace_log("error %s,%d\n",__FUNCTION__,__LINE__);
-							continue;
+                            goto end;
 						}
 						//跳过播放文件头
 						res = f_lseek(audiodev.file1, wavctrl.datastart);

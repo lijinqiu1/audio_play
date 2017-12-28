@@ -26,7 +26,7 @@
 //°æÈ¨ËùÓÐ£¬µÁ°æ±Ø¾¿¡£
 //Copyright(C) ÖÐ¾°Ô°µç×Ó2014/3/16
 //All rights reserved
-//******************************************************************************/£
+//******************************************************************************/?
 
 #include "main.h"
 #include "spi.h"
@@ -198,7 +198,10 @@ void OLED_DrawBMP(unsigned char x0, unsigned char y0,unsigned char x1, unsigned 
 	}
 }
 
+void OLED_DrawLine(unsigned char y)
+{
 
+}
 //³õÊ¼»¯SSD1306
 void OLED_Init(void)
 {

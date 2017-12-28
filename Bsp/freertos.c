@@ -54,7 +54,6 @@
 /* USER CODE BEGIN Includes */
 #include "audio.h"
 #include "log.h"
-#include "events.h"
 #include "display.h"
 /* USER CODE END Includes */
 
@@ -138,7 +137,7 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(logrecordTask,Log_Record_Task,osPriorityNormal,0,1024);
   logrecordHandle = osThreadCreate(osThread(logrecordTask),NULL);
   /*oledœ‘ æœﬂ≥Ã*/
-  osThreadDef(displayprocessTask, Display_Process_Task, osPriorityBelowNormal, 0, 512);
+  osThreadDef(displayprocessTask, Display_Process_Task, osPriorityBelowNormal, 0, 1024);
   displayprocessHandle = osThreadCreate(osThread(displayprocessTask), NULL);
   /* USER CODE END RTOS_THREADS */
 
