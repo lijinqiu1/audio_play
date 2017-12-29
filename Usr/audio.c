@@ -433,13 +433,19 @@ void AudioController_Task(void const * argument)
 {
 	EventBits_t xEventGroupValue;
 	//—µ¡∑»ŒŒÒ»’÷æ
-	FIL log_fil;
+	FIL *log_fil;
 	FRESULT res;
 	char log_fil_name[40];
 	char log_path[40];
 	char log[40];
 	static uint8_t usb_status = 0;
 	static uint8_t ble_status = 0;//¿∂—¿◊¥Ã¨£¨≥ı º◊¥Ã¨¿∂—¿πÿ±’
+	log_fil = pvPortMalloc(sizeof(FIL);
+    if (!log_fil)
+    {
+        app_trace_log("log_fil Malloc faild %s,%d\n",__FUNCTION__,__LINE__);
+        while(1);
+    }
 	const EventBits_t xBitsToWaitFor = (EVENTS_VOL_UP_BIT|
 		                                  EVENTS_VOL_DOWN_BIT|
 		                                  EVENTS_FUN_BLE_CHANGE_BIT|
@@ -925,7 +931,7 @@ void AudioPlay_With_List_Task(void const *argument)
 						res = f_lseek(audiodev.file1, wavctrl.datastart);
 						if (res != FR_OK)
 						{
-							app_trace_log("error %s,%d\n",__FUNCTION__,__LINE__);
+							app_trace_log("error:%d %s,%d\n",read,__FUNCTION__,__LINE__);
 							goto error1;
 						}
 						//ª∫¥Ê“Ù∆µ≤•∑≈ ˝æ›

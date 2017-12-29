@@ -124,20 +124,20 @@ void MX_FREERTOS_Init(void) {
 
   /*录音、播放线程*/
   #if defined(PLAY_WITH_LIST)
-  osThreadDef(audioplaywithlistTask,AudioPlay_With_List_Task,osPriorityHigh,0,4096);
+  osThreadDef(audioplaywithlistTask,AudioPlay_With_List_Task,osPriorityNormal,0,4096);
   audioplaywithlistTaskHandle = osThreadCreate(osThread(audioplaywithlistTask),NULL);
   #elif defined(PLAY_WITH_RNG)
   osThreadDef(audioplayTask,AudioPlay_Task,osPriorityHigh,0,4096);
   audioplayTaskHandle = osThreadCreate(osThread(audioplayTask),NULL);
   #endif
   /*音频控制线程*/
-  osThreadDef(audiocontrollerTask,AudioController_Task,osPriorityBelowNormal,0,1024);
+  osThreadDef(audiocontrollerTask,AudioController_Task,osPriorityHigh,0,1024);
   audiocontrollerHandle = osThreadCreate(osThread(audiocontrollerTask),NULL);
   /*log线程*/
-  osThreadDef(logrecordTask,Log_Record_Task,osPriorityNormal,0,1024);
+  osThreadDef(logrecordTask,Log_Record_Task,osPriorityHigh,0,1024);
   logrecordHandle = osThreadCreate(osThread(logrecordTask),NULL);
   /*oled显示线程*/
-  osThreadDef(displayprocessTask, Display_Process_Task, osPriorityBelowNormal, 0, 1024);
+  osThreadDef(displayprocessTask, Display_Process_Task, osPriorityHigh, 0, 1024);
   displayprocessHandle = osThreadCreate(osThread(displayprocessTask), NULL);
   /* USER CODE END RTOS_THREADS */
 
