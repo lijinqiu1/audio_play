@@ -33,7 +33,9 @@ void Log_Record_Task(void const * argument)
 //	EventBits_t xEventGroupValue;
 //	const EventBits_t xBitsToWaitFor = (EVENTS_NEW_DAY_BIT);
 	//打开log文件夹，如果没有创建
-	while(f_opendir(&recdir,"0:/LOG"))
+    app_trace_log("%s begin\n",__FUNCTION__);
+	res = f_opendir(&recdir,"0:/LOG");
+	while(res)
 	{
 		res = f_mkdir("0:/LOG");
 		APP_ERROR_CHECK(res);

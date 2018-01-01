@@ -544,6 +544,11 @@
               <FileType>1</FileType>
               <FilePath>..\Bsp\oled.c</FilePath>
             </File>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Bsp\adc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1369,6 +1374,11 @@
               <FileName>oled.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Bsp\oled.c</FilePath>
+            </File>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Bsp\adc.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -166,7 +166,7 @@ static FRESULT wav_decode_init(uint8_t *fname, __wavctrl* wavx)
 
             wavx->datasize=data->ChunkSize;			//数据块大小
             wavx->datastart=wavx->datastart+8;		//数据流开始的地方.
-
+/*
             app_trace_log("wavx->audioformat:%d\r\n",wavx->audioformat);
             app_trace_log("wavx->nchannels:%d\r\n",wavx->nchannels);
             app_trace_log("wavx->samplerate:%d\r\n",wavx->samplerate);
@@ -175,6 +175,7 @@ static FRESULT wav_decode_init(uint8_t *fname, __wavctrl* wavx)
             app_trace_log("wavx->bps:%d\r\n",wavx->bps);
             app_trace_log("wavx->datasize:%d\r\n",wavx->datasize);
             app_trace_log("wavx->datastart:%d\r\n",wavx->datastart);
+            */
         }
     }
 error1:
@@ -440,7 +441,8 @@ void AudioController_Task(void const * argument)
 	char log[40];
 	static uint8_t usb_status = 0;
 	static uint8_t ble_status = 0;//蓝牙状态，初始状态蓝牙关闭
-	log_fil = pvPortMalloc(sizeof(FIL);
+    app_trace_log("AudioController_Task begin\n");
+	log_fil = (FIL*)pvPortMalloc(sizeof(FIL));
     if (!log_fil)
     {
         app_trace_log("log_fil Malloc faild %s,%d\n",__FUNCTION__,__LINE__);
@@ -484,7 +486,7 @@ void AudioController_Task(void const * argument)
 			WM8978_SPKvol_Set(volume);
 			//记录log
 			sprintf(log,"volume+");
-			save_task_log(&log_fil,log);
+			save_task_log(log_fil,log);
 			send_log(log);
 			app_trace_log("volume+\n");
 		}
@@ -499,7 +501,7 @@ void AudioController_Task(void const * argument)
 			WM8978_SPKvol_Set(volume);
 			//记录log
 			sprintf(log,"volume-");
-			save_task_log(&log_fil,log);
+			save_task_log(log_fil,log);
 			send_log(log);
 			app_trace_log("volume-\n");
 		}
@@ -547,7 +549,7 @@ void AudioController_Task(void const * argument)
 		{//报告
 			sprintf(log,"report");
 			send_log(log);
-			save_task_log(&log_fil,log);
+			save_task_log(log_fil,log);
 			app_trace_log("report\n");
 		}
 		if(xEventGroupValue&EVENTS_TASK_LOG_CREATE_BIT)
@@ -556,7 +558,7 @@ void AudioController_Task(void const * argument)
 			//打开录音文件
 			strcpy(log_path,RECORD_PATH);
 			strcat(log_path,(char*)log_fil_name);
-			res=f_open(&log_fil,(const TCHAR*)log_path,FA_CREATE_ALWAYS|FA_WRITE);
+			res=f_open(log_fil,(const TCHAR*)log_path,FA_CREATE_ALWAYS|FA_WRITE);
 			if (res != FR_OK)
 			{
 				app_trace_log("error:%x ,%s,%d\n",res,__FUNCTION__,__LINE__);
@@ -566,8 +568,9 @@ void AudioController_Task(void const * argument)
 		if(xEventGroupValue&EVENTS_PLAY_AND_RECORD_END_BIT)
 		{//任务结束
 			sprintf(log,"Task Completed");
-			save_task_log(&log_fil,log);
-			res=f_close(&log_fil);
+			save_task_log(log_fil,log);
+            f_sync(log_fil);
+			res=f_close(log_fil);
 			if (res != FR_OK)
 			{
 				app_trace_log("error:%x ,%s,%d\n",res,__FUNCTION__,__LINE__);
@@ -577,13 +580,19 @@ void AudioController_Task(void const * argument)
 		if(xEventGroupValue&EVENTS_PLAY_CASE_BIT)
 		{//任务取消
 			sprintf(log,"Task Case");
-			save_task_log(&log_fil,log);
+			save_task_log(log_fil,log);
+            f_sync(log_fil);
+			res=f_close(log_fil);
+			if (res != FR_OK)
+			{
+				app_trace_log("error:%x ,%s,%d\n",res,__FUNCTION__,__LINE__);
+			}
             app_trace_log("Task Case\n");
 		}
 		if(xEventGroupValue & EVENTS_PLAY_NEW_SONG_BIT)
 		{//播放下一曲
 			sprintf(log,"PLAY %03d.wav",play_list[cur_file_index]);
-			save_task_log(&log_fil,log);
+			save_task_log(log_fil,log);
 		}
 	}
 
@@ -706,8 +715,8 @@ void AudioController_Task(void const * argument)
 void AudioPlay_With_List_Task(void const *argument)
 {
 	FRESULT res;
-	EventBits_t xEventGroupValue;
     FATFS fs;
+	EventBits_t xEventGroupValue;
 	DIR recdir;
 	//wav文件头
 	__WaveHeader *wavheadrx;
@@ -730,9 +739,11 @@ void AudioPlay_With_List_Task(void const *argument)
 	char log[40];
 	const EventBits_t xBitsToWaitFor = (EVENTS_FUN_STOP_BIT |
 	                                     EVENTS_PLAY_AND_RECORD_BIT);
-	//挂载SD卡
-	res = f_mount(&fs,(const TCHAR*)SD_Path,0);
-	APP_ERROR_CHECK(res);
+    app_trace_log("%s begin\n",__FUNCTION__);
+	
+    //挂载SD卡
+    res = f_mount(&fs,(const TCHAR*)SD_Path,0);
+    APP_ERROR_CHECK(res);
 	//打开录音文件夹，如果没有创建
 	while(f_opendir(&recdir,"0:/RECORD"))
 	{
@@ -883,7 +894,7 @@ void AudioPlay_With_List_Task(void const *argument)
 			//开始录音播放
 			//进入播放模式
 			play_begin = 1;
-			key_work_status = 1;
+			key_work_status = KEY_WORK_STATUS_PLAY;
 			stop_play_record = 0;
 			HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_RESET);
             xEventGroupSetBits(xEventGroup, EVENTS_TASK_LOG_CREATE_BIT);
@@ -927,11 +938,12 @@ void AudioPlay_With_List_Task(void const *argument)
 							app_trace_log("error %s,%d\n",__FUNCTION__,__LINE__);
                             goto end;
 						}
+						f_sync(audiodev.file1);
 						//跳过播放文件头
 						res = f_lseek(audiodev.file1, wavctrl.datastart);
 						if (res != FR_OK)
 						{
-							app_trace_log("error:%d %s,%d\n",read,__FUNCTION__,__LINE__);
+							app_trace_log("error:%d %s,%d\n",res,__FUNCTION__,__LINE__);
 							goto error1;
 						}
 						//缓存音频播放数据
@@ -980,8 +992,6 @@ void AudioPlay_With_List_Task(void const *argument)
 						f_sync(audiodev.file2);
 					}
 					xSemaphoreGive(xSdioMutex);
-					if ((wavsize % 409600)==0)
-						app_trace_log("writed :%d %d\n",res,__LINE__);
 				}
 			}
 
@@ -1027,7 +1037,7 @@ error1:
     			wavsize=0;
 				play_begin = 0; //关闭播放
 				cur_file_index = 0;//当前播放引索清零
-				key_work_status = 0;//进入待机模式
+				key_work_status = KEY_WORK_STATUS_READY;//进入待机模式
 				HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_SET);
 			}
 		}
@@ -1314,8 +1324,6 @@ void AudioPlay_Task(void const * argument)
 							f_sync(audiodev.file2);
 						}
 						xSemaphoreGive(xSdioMutex);
-						if ((wavsize % 409600)==0)
-							app_trace_log("writed :%d %d\n",res,__LINE__);
 					}
 				}
 			}

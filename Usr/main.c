@@ -60,6 +60,8 @@
 #include "rng.h"
 #include "main.h"
 #include "spi.h"
+#include "adc.h"
+#include "tim.h"
 /* USER CODE BEGIN Includes */
 #include "myiic.h"
 #include "usb_device.h"
@@ -72,7 +74,7 @@
 
 //判断按键工作状态
 //0待机，1工作
-uint8_t key_work_status = 0;
+uint8_t key_work_status = KEY_WORK_STATUS_READY;
 
 
 /* USER CODE END PV */
@@ -141,7 +143,8 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+  FRESULT res;
+  FATFS fs;
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -171,7 +174,10 @@ int main(void)
   MX_RNG_Init();
   MX_USB_DEVICE_Init();
   MX_SPI4_Init();
+  MX_ADC1_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
+  HAL_TIM_Base_Start(&htim3);
   IIC_Init();
   app_trace_log("hello!\n");
   /* USER CODE END 2 */

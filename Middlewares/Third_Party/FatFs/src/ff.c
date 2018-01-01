@@ -2295,7 +2295,8 @@ FRESULT find_volume (	/* FR_OK(0): successful, !=0: any error occurred */
 
 	/* Check if the file system object is valid or not */
 	fs = FatFs[vol];					/* Get pointer to the file system object */
-	if (!fs) return FR_NOT_ENABLED;		/* Is the file system object available? */
+	if (!fs) 
+		return FR_NOT_ENABLED;		/* Is the file system object available? */
 
 	ENTER_FF(fs);						/* Lock the volume */
 	*rfs = fs;							/* Return pointer to the file system object */

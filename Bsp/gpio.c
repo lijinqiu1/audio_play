@@ -257,7 +257,7 @@ void prvKeyDelayCallback(TimerHandle_t xTimer)
 	uint16_t GPIO_Pin;
 
 	GPIO_Pin = key_pressd;
-	if(key_work_status == 1)
+	if(key_work_status == KEY_WORK_STATUS_PLAY)
 	{//²¥·ÅÄ£Ê½
 		if(GPIO_Pin == KEY_VOL_UP_Pin)
 		{

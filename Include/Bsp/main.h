@@ -153,13 +153,13 @@
 #define EVENTS_TASK_LOG_CREATE_BIT           (1UL << 16UL)
 
 /* IRQ PRI */
-#define IRQ_PRI_SD_DMA                        0x03
+#define IRQ_PRI_SD_DMA                        0x06
 #define IRQ_SUBPRI_SD_DMA                     0x00
 
-#define IRQ_PRI_SDIO                          0x02
+#define IRQ_PRI_SDIO                          0x05
 #define IRQ_SUBPRI_SDIO                       0x00
 
-#define IRQ_PRI_USB_FS                        0x04
+#define IRQ_PRI_USB_FS                        0x07
 #define IRQ_SUBPRI_USB_FS                     0x00
 
 #define IRQ_PRI_IIS_DMA                       0x08
@@ -190,6 +190,9 @@
 #define LOG_PATH                "0:/LOG/"
 
 //ÅÐ¶Ï°´¼ü¹¤×÷×´Ì¬
+#define KEY_WORK_STATUS_READY                 0
+#define KEY_WORK_STATUS_PLAY                  1
+
 extern uint8_t key_work_status;
 
 void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name);
