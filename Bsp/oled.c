@@ -112,7 +112,7 @@ void OLED_ShowChar(uint8_t x,uint8_t y,uint8_t chr,uint8_t size)
 	}
 	else
 	{
-		OLED_Set_Pos(x,y+1);
+		OLED_Set_Pos(x,y);
 		for(i=0;i<6;i++)
 		OLED_WR_Byte(F6x8[c][i],OLED_DATA);
 	}
@@ -162,19 +162,19 @@ void OLED_ShowString(uint8_t x,uint8_t y,uint8_t *chr,uint8_t size)
 	}
 }
 //ÏÔÊ¾ºº×Ö
-void OLED_ShowCHinese(uint8_t x,uint8_t y,uint8_t no)
+void OLED_ShowCHinese(uint8_t x,uint8_t y,uint8_t no,uint8_t (*Hz)[32])
 {
 	uint8_t t,adder=0;
 	OLED_Set_Pos(x,y);
     for(t=0;t<16;t++)
 	{
-		OLED_WR_Byte(Hzk[2*no][t],OLED_DATA);
+		OLED_WR_Byte(Hz[2*no][t],OLED_DATA);
 		adder+=1;
     }
 	OLED_Set_Pos(x,y+1);
     for(t=0;t<16;t++)
 	{
-		OLED_WR_Byte(Hzk[2*no+1][t],OLED_DATA);
+		OLED_WR_Byte(Hz[2*no+1][t],OLED_DATA);
 		adder+=1;
     }
 }
