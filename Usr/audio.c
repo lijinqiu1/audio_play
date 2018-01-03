@@ -321,7 +321,6 @@ static void recoder_new_pathname(uint8_t *pname)
 
 	sprintf((char*)pname,"%04d-%02d-%02d-%02d-%02d-%02d.wav",\
 		 dat.Year+2000,dat.Month,dat.Date,tim.Hours,tim.Minutes,tim.Seconds);
-    app_trace_log("%s\n",pname);
 }
 
 static void task_log_new_pathname(uint8_t *pname)
@@ -715,7 +714,7 @@ void AudioController_Task(void const * argument)
 void AudioPlay_With_List_Task(void const *argument)
 {
 	FRESULT res;
-    FATFS fs;
+//    FATFS fs;
 	EventBits_t xEventGroupValue;
 	DIR recdir;
 	//wav文件头
@@ -741,9 +740,6 @@ void AudioPlay_With_List_Task(void const *argument)
 	                                     EVENTS_PLAY_AND_RECORD_BIT);
     app_trace_log("%s begin\n",__FUNCTION__);
 	
-    //挂载SD卡
-    res = f_mount(&fs,(const TCHAR*)SD_Path,0);
-    APP_ERROR_CHECK(res);
 	//打开录音文件夹，如果没有创建
 	while(f_opendir(&recdir,"0:/RECORD"))
 	{
@@ -828,7 +824,7 @@ void AudioPlay_With_List_Task(void const *argument)
 			if (res != FR_OK)
 			{
 				app_trace_log("error %s,%d\n",__FUNCTION__,__LINE__);
-				continue;
+				goto end;
 			}
 			//跳过播放文件头
 			res = f_lseek(audiodev.file1, wavctrl.datastart);
@@ -837,6 +833,9 @@ void AudioPlay_With_List_Task(void const *argument)
 				app_trace_log("error %s,%d\n",__FUNCTION__,__LINE__);
 				goto error1;
 			}
+			//缓存音频播放数据
+			fillnum=wav_buffill(audiodev.i2sbuf1,audiodev.tbuf,audiodev.file1,WAV_I2S_TX_DMA_BUFSIZE,wavctrl.bps);
+			fillnum = WAV_I2S_TX_DMA_BUFSIZE/2;
 			//将播放信息发送给log线程
 			sprintf(log,"playing-%s",(char*)pname);
 			send_log(log);
@@ -857,7 +856,7 @@ void AudioPlay_With_List_Task(void const *argument)
 			if (res != FR_OK)
 			{
 				app_trace_log("error:%x ,%s,%d\n",res,__FUNCTION__,__LINE__);
-				continue;
+				goto end;
 			}
 			xSemaphoreTake(xSdioMutex,portMAX_DELAY);
 			//写入文件头
@@ -885,9 +884,6 @@ void AudioPlay_With_List_Task(void const *argument)
 			}
 			//初始化IIS时钟
 			IIS_Init(wavctrl.bps,wavctrl.samplerate);
-			//缓存音频播放数据
-			fillnum=wav_buffill(audiodev.i2sbuf1,audiodev.tbuf,audiodev.file1,WAV_I2S_TX_DMA_BUFSIZE,wavctrl.bps);
-			fillnum = WAV_I2S_TX_DMA_BUFSIZE/2;
 			//启动dma开始播放
 			HAL_I2SEx_TransmitReceive_DMA_A(&hi2s2,(uint16_t *)audiodev.i2sbuf1,(uint16_t *)audiodev.i2sbuf2,\
 				WAV_I2S_TX_DMA_BUFSIZE/2);

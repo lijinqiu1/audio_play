@@ -48,8 +48,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
-#include "dma.h"
 #include "fatfs.h"
+#include "dma.h"
 #include "i2s.h"
 #include "rtc.h"
 #include "sdio.h"
@@ -58,10 +58,10 @@
 #include "gpio.h"
 #include "fmc.h"
 #include "rng.h"
-#include "main.h"
 #include "spi.h"
 #include "adc.h"
 #include "tim.h"
+#include "main.h"
 /* USER CODE BEGIN Includes */
 #include "myiic.h"
 #include "usb_device.h"
@@ -143,8 +143,6 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-  FRESULT res;
-  FATFS fs;
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -186,6 +184,7 @@ int main(void)
   MX_FATFS_Init();
   MX_FREERTOS_Init();
   app_error_init();
+  
   /* Start scheduler */
   osKernelStart();
 

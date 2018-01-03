@@ -153,10 +153,10 @@
 #define EVENTS_TASK_LOG_CREATE_BIT           (1UL << 16UL)
 
 /* IRQ PRI */
-#define IRQ_PRI_SD_DMA                        0x06
+#define IRQ_PRI_SD_DMA                        0x02
 #define IRQ_SUBPRI_SD_DMA                     0x00
 
-#define IRQ_PRI_SDIO                          0x05
+#define IRQ_PRI_SDIO                          0x01
 #define IRQ_SUBPRI_SDIO                       0x00
 
 #define IRQ_PRI_USB_FS                        0x07

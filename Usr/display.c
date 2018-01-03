@@ -88,21 +88,22 @@ static void Display_work_status(RTC_TimeTypeDef tim)
     }
 }
 
-static void Display_Battery_Value(uint32_t battery_value)
+static void Display_Battery_Value(uint16_t *battery_value)
 {
-    if(battery_value > BATTERY_VALUE_FULL)
+    uint16_t value = battery_value[0] * 1.0 /battery_value[1] * 4.2;
+    if(value > 3.8)
     {
         OLED_DrawBMP(40,0,64,1,(unsigned char *)BATTERY_FULL);
     }
-    else if(battery_value > BATTERY_VALUE_TWO)
+    else if(value > 3.7)
     {
         OLED_DrawBMP(40,0,64,1,(unsigned char *)BATTERY_2);
     }
-    else if(battery_value > BATTERY_VALUE_ONE)
+    else if(value > 3.6)
     {
         OLED_DrawBMP(40,0,64,1,(unsigned char *)BATTERY_1);
     }
-    else if(battery_value > BATTERY_VALUE_ZERO)
+    else if(value > 3.4)
     {
         OLED_DrawBMP(40,0,64,1,(unsigned char *)BATTERY_0);
     }
@@ -111,12 +112,12 @@ static void Display_Battery_Value(uint32_t battery_value)
 
 void Display_Process_Task(void const * argument)
 {
-    uint32_t battery_value = 4096;
+    uint16_t battery_value[2] = {4096,4096};
 	RTC_DateTypeDef dat;
 	RTC_TimeTypeDef tim;
     OLED_Init();
     OLED_Clear();
-    HAL_ADC_Start_DMA(&hadc1, &battery_value, 1);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)battery_value, 2);
     app_trace_log("Display_Process_Task begin\n");
     while(1)
     {
@@ -125,7 +126,7 @@ void Display_Process_Task(void const * argument)
 		Display_Time(tim);
         Display_work_status(tim);
         Display_Battery_Value(battery_value);
-        //app_trace_log("value = %f\n",0.0028198*(battery_value + 177));
+        //app_trace_log("value = %f\n",(battery_value[0]*1.0/battery_value[1])*4.2);
 		osDelay(1000);
     }
 }

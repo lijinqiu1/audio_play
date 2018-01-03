@@ -52,7 +52,7 @@ uint8_t retSD;    /* Return value for SD */
 char SD_Path[4];  /* SD logical drive path */
 
 /* USER CODE BEGIN Variables */
-
+FATFS fs;
 /* USER CODE END Variables */
 
 void MX_FATFS_Init(void)
@@ -61,7 +61,12 @@ void MX_FATFS_Init(void)
   retSD = FATFS_LinkDriver(&SD_Driver, SD_Path);
 
   /* USER CODE BEGIN Init */
+  FRESULT res;
   /* additional user code for init */
+	
+  //π“‘ÿSDø®
+  res = f_mount(&fs,(const TCHAR*)SD_Path,0);
+  APP_ERROR_CHECK(res);
   /* USER CODE END Init */
 }
 
