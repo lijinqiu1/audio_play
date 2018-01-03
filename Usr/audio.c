@@ -108,9 +108,9 @@ static void save_task_log(FIL *file,char *log)
 		dat.Year+2000,dat.Month,dat.Date,\
 		tim.Hours,tim.Minutes,tim.Seconds,tim.SubSeconds,\
 		log);
-	xSemaphoreTake(xSdioMutex,portMAX_DELAY);
+//	xSemaphoreTake(xSdioMutex,portMAX_DELAY);
 	f_puts((const TCHAR*)queuebuffer,file);
-	xSemaphoreGive(xSdioMutex);
+//	xSemaphoreGive(xSdioMutex);
 }
 
 static FRESULT wav_decode_init(uint8_t *fname, __wavctrl* wavx)
@@ -205,7 +205,7 @@ static uint32_t wav_buffill(uint8_t *buf,uint8_t *tbuf,FIL*file,uint16_t size,ui
 	uint8_t *p;
     FRESULT res;
 
-	xSemaphoreTake(xSdioMutex,portMAX_DELAY);
+//	xSemaphoreTake(xSdioMutex,portMAX_DELAY);
 	if(bits==24)//24bit音频,需要处理一下
 	{
 		readlen=(size/4)*3;							//此次要读取的字节数
@@ -240,7 +240,7 @@ static uint32_t wav_buffill(uint8_t *buf,uint8_t *tbuf,FIL*file,uint16_t size,ui
 			APP_ERROR_CHECK(res);
 		}
 	}
-	xSemaphoreGive(xSdioMutex);
+//	xSemaphoreGive(xSdioMutex);
 	return bread;
 }
 
@@ -858,7 +858,7 @@ void AudioPlay_With_List_Task(void const *argument)
 				app_trace_log("error:%x ,%s,%d\n",res,__FUNCTION__,__LINE__);
 				goto end;
 			}
-			xSemaphoreTake(xSdioMutex,portMAX_DELAY);
+//			xSemaphoreTake(xSdioMutex,portMAX_DELAY);
 			//写入文件头
 		    res= f_write(audiodev.file2,(const void*)wavheadrx,sizeof(__WaveHeader),&bw);
 		    if (res != FR_OK)
@@ -866,7 +866,7 @@ void AudioPlay_With_List_Task(void const *argument)
 				app_trace_log("error %s,%d\n",__FUNCTION__,__LINE__);
 				goto error1;
 			}
-			xSemaphoreGive(xSdioMutex);
+//			xSemaphoreGive(xSdioMutex);
 			f_sync(audiodev.file2);
 			//将录音信息发送给log线程
 			sprintf(log,"recording-%s",(char*)rname);
@@ -960,7 +960,7 @@ void AudioPlay_With_List_Task(void const *argument)
 				{
 					fillnum=wav_buffill(audiodev.i2sbuf1+(WAV_I2S_TX_DMA_BUFSIZE/2),audiodev.tbuf,audiodev.file1,WAV_I2S_TX_DMA_BUFSIZE/2,\
 										wavctrl.bps);//填充buf1
-					xSemaphoreTake(xSdioMutex,portMAX_DELAY);
+//					xSemaphoreTake(xSdioMutex,portMAX_DELAY);
 					res=f_write(audiodev.file2,audiodev.i2sbuf2+WAV_I2S_RX_DMA_BUFSIZE/2,WAV_I2S_RX_DMA_BUFSIZE/2,(UINT*)&bw);//写入文件
 					if(res != FR_OK)
 					{
@@ -971,12 +971,12 @@ void AudioPlay_With_List_Task(void const *argument)
 						wavsize+=WAV_I2S_RX_DMA_BUFSIZE/2;
 						f_sync(audiodev.file2);
 					}
-					xSemaphoreGive(xSdioMutex);
+//					xSemaphoreGive(xSdioMutex);
 				}
 				else
 				{
 					fillnum=wav_buffill(audiodev.i2sbuf1,audiodev.tbuf,audiodev.file1,WAV_I2S_TX_DMA_BUFSIZE/2,wavctrl.bps);//填充buf1
-					xSemaphoreTake(xSdioMutex,portMAX_DELAY);
+//					xSemaphoreTake(xSdioMutex,portMAX_DELAY);
 					res=f_write(audiodev.file2,audiodev.i2sbuf2,WAV_I2S_RX_DMA_BUFSIZE/2,(UINT*)&bw);//写入文件
 					if(res != FR_OK)
 					{
@@ -987,7 +987,7 @@ void AudioPlay_With_List_Task(void const *argument)
 						wavsize+=WAV_I2S_RX_DMA_BUFSIZE/2;
 						f_sync(audiodev.file2);
 					}
-					xSemaphoreGive(xSdioMutex);
+//					xSemaphoreGive(xSdioMutex);
 				}
 			}
 

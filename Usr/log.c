@@ -65,7 +65,7 @@ void Log_Record_Task(void const * argument)
 		xStatus = xQueueReceive(xQueueLog,queuebuf,portMAX_DELAY);
 		if (xStatus == pdPASS)
 		{
-			xSemaphoreTake(xSdioMutex,portMAX_DELAY);
+//			xSemaphoreTake(xSdioMutex,portMAX_DELAY);
 			HAL_RTC_GetDate(&hrtc,&cur_dat,RTC_FORMAT_BIN);
 			if((cur_dat.Year != dat.Year)||(cur_dat.Month != dat.Month)||(cur_dat.Date != dat.Date))
 			{
@@ -91,7 +91,7 @@ void Log_Record_Task(void const * argument)
 			}
 			f_puts((const TCHAR*) queuebuf,&log_file);
 			f_sync(&log_file);
-			xSemaphoreGive(xSdioMutex);
+//			xSemaphoreGive(xSdioMutex);
 		}
 	}
 }
