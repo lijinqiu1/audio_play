@@ -112,6 +112,11 @@ DSTATUS SD_status(BYTE lun)
   if(BSP_SD_GetCardState() == MSD_OK)
   {
     Stat &= ~STA_NOINIT;
+	  app_trace_log("%s,%d\n",__FUNCTION__,__LINE__);
+  }
+  else
+  {
+	  app_trace_log("%s,%d\n",__FUNCTION__,__LINE__);
   }
   
   return Stat;

@@ -237,6 +237,7 @@ static uint32_t wav_buffill(uint8_t *buf,uint8_t *tbuf,FIL*file,uint16_t size,ui
         }
 		else
 		{
+            //app_trace_log("fs 0x%x\n",file->fs);
 			APP_ERROR_CHECK(res);
 		}
 	}
@@ -833,6 +834,8 @@ void AudioPlay_With_List_Task(void const *argument)
 				app_trace_log("error %s,%d\n",__FUNCTION__,__LINE__);
 				goto error1;
 			}
+            
+            app_trace_log("fs 0x%x\n",audiodev.file1->fs);
 			//ª∫¥Ê“Ù∆µ≤•∑≈ ˝æ›
 			fillnum=wav_buffill(audiodev.i2sbuf1,audiodev.tbuf,audiodev.file1,WAV_I2S_TX_DMA_BUFSIZE,wavctrl.bps);
 			fillnum = WAV_I2S_TX_DMA_BUFSIZE/2;
