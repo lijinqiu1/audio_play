@@ -118,6 +118,9 @@
 
 #define SDIO_DET_Pin GPIO_PIN_13
 #define SDIO_DET_GPIO_Port GPIOC
+
+#define VBUS_DET_Pin GPIO_PIN_2
+#define VBUS_DET_GPIO_Port GPIOA
 #endif
 
 #define KEY_FUN_Pin GPIO_PIN_7         /*待机模式:蓝牙耳机切换*/
@@ -199,7 +202,11 @@
 #define KEY_WORK_STATUS_READY                 0
 #define KEY_WORK_STATUS_PLAY                  1
 
+#define USB_CONNECT_STATUS_DISCONNECTED       0                      
+#define USB_CONNECT_STATUS_CONNECTED          1
+
 extern uint8_t key_work_status;
+extern uint8_t usb_connect_status;
 
 void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name);
 

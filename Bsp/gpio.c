@@ -145,6 +145,12 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(SDIO_DET_GPIO_Port, &GPIO_InitStruct);
 
+  GPIO_InitStruct.Pin = VBUS_DET_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(VBUS_DET_GPIO_Port, &GPIO_InitStruct);
+
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, IRQ_PRI_EXIT9_5, IRQ_SUBPRI_EXIT9_5);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
@@ -296,30 +302,33 @@ void prvKeyDelayCallback(TimerHandle_t xTimer)
 	}
 	else
 	{//´ý»úÄ£Ê½
-		if(GPIO_Pin == KEY_VOL_UP_Pin)
-		{
-			if(HAL_GPIO_ReadPin(KEY_VOL_UP_GPIO_Port,KEY_VOL_UP_Pin))
-				xEventGroupSetBits(xEventGroup, EVENTS_FUN_USB_BIT);
-		}
-		if(GPIO_Pin == KEY_VOL_DOWN_Pin)
-		{
-            
-		}
-		if(GPIO_Pin == KEY_FUN_Pin)
-		{
-			if(HAL_GPIO_ReadPin(KEY_FUN_GPIO_Port,KEY_FUN_Pin))
-				xEventGroupSetBits(xEventGroup, EVENTS_FUN_BLE_CHANGE_BIT);
-		}
-		if(GPIO_Pin == KEY_ASK_Pin)
-		{
-			if(HAL_GPIO_ReadPin(KEY_ASK_GPIO_Port,KEY_ASK_Pin))
-				xEventGroupSetBits(xEventGroup, EVENTS_PLAY_AND_RECORD_BIT);
-		}
-		if(GPIO_Pin== KEY_WAKE_UP_Pin)
-		{
-			if(!HAL_GPIO_ReadPin(KEY_WAKE_UP_GPIO_Port,KEY_WAKE_UP_Pin))
-				xEventGroupSetBits(xEventGroup, EVENTS_BLE_PAIR_BIT);
-		}
+	    if (usb_connect_status == USB_CONNECT_STATUS_DISCONNECTED)
+	    {
+    		if(GPIO_Pin == KEY_VOL_UP_Pin)
+    		{
+    			if(HAL_GPIO_ReadPin(KEY_VOL_UP_GPIO_Port,KEY_VOL_UP_Pin))
+    				xEventGroupSetBits(xEventGroup, EVENTS_FUN_USB_BIT);
+    		}
+    		if(GPIO_Pin == KEY_VOL_DOWN_Pin)
+    		{
+                
+    		}
+    		if(GPIO_Pin == KEY_FUN_Pin)
+    		{
+    			if(HAL_GPIO_ReadPin(KEY_FUN_GPIO_Port,KEY_FUN_Pin))
+    				xEventGroupSetBits(xEventGroup, EVENTS_FUN_BLE_CHANGE_BIT);
+    		}
+    		if(GPIO_Pin == KEY_ASK_Pin)
+    		{
+    			if(HAL_GPIO_ReadPin(KEY_ASK_GPIO_Port,KEY_ASK_Pin))
+    				xEventGroupSetBits(xEventGroup, EVENTS_PLAY_AND_RECORD_BIT);
+    		}
+    		if(GPIO_Pin== KEY_WAKE_UP_Pin)
+    		{
+    			if(!HAL_GPIO_ReadPin(KEY_WAKE_UP_GPIO_Port,KEY_WAKE_UP_Pin))
+    				xEventGroupSetBits(xEventGroup, EVENTS_BLE_PAIR_BIT);
+    		}
+	    }
 	}
 }
 

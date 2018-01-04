@@ -91,21 +91,48 @@ static void Display_work_status(RTC_TimeTypeDef tim)
 static void Display_Battery_Value(uint16_t *battery_value)
 {
     uint16_t value = battery_value[0] * 1.0 /battery_value[1] * 4.2;
-    if(value > 3.8)
+    static uint8_t index = 0;
+    if(usb_connect_status == USB_CONNECT_STATUS_DISCONNECTED)
     {
-        OLED_DrawBMP(40,0,64,1,(unsigned char *)BATTERY_FULL);
+        if(value > 3.8)
+        {
+            OLED_DrawBMP(40,0,64,1,(unsigned char *)BATTERY_FULL);
+        }
+        else if(value > 3.7)
+        {
+            OLED_DrawBMP(40,0,64,1,(unsigned char *)BATTERY_2);
+        }
+        else if(value > 3.6)
+        {
+            OLED_DrawBMP(40,0,64,1,(unsigned char *)BATTERY_1);
+        }
+        else if(value > 3.4)
+        {
+            OLED_DrawBMP(40,0,64,1,(unsigned char *)BATTERY_0);
+        }
+        index = 0;
     }
-    else if(value > 3.7)
+    else
     {
-        OLED_DrawBMP(40,0,64,1,(unsigned char *)BATTERY_2);
-    }
-    else if(value > 3.6)
-    {
-        OLED_DrawBMP(40,0,64,1,(unsigned char *)BATTERY_1);
-    }
-    else if(value > 3.4)
-    {
-        OLED_DrawBMP(40,0,64,1,(unsigned char *)BATTERY_0);
+        switch(index)
+        {
+        case 0:
+            OLED_DrawBMP(40,0,64,1,(unsigned char *)BATTERY_0);
+            index ++;
+        break;
+        case 1:
+            OLED_DrawBMP(40,0,64,1,(unsigned char *)BATTERY_1);
+            index ++;
+        break;
+        case 2:
+            OLED_DrawBMP(40,0,64,1,(unsigned char *)BATTERY_2);
+            index ++;
+        break;
+        case 3:
+            OLED_DrawBMP(40,0,64,1,(unsigned char *)BATTERY_FULL);
+            index = 0;
+        break;
+        }
     }
 }
 
@@ -121,6 +148,14 @@ void Display_Process_Task(void const * argument)
     app_trace_log("Display_Process_Task begin\n");
     while(1)
     {
+        if(HAL_GPIO_ReadPin(VBUS_DET_GPIO_Port, VBUS_DET_Pin))
+        {
+            usb_connect_status = USB_CONNECT_STATUS_CONNECTED;
+        }
+        else
+        {
+            usb_connect_status = USB_CONNECT_STATUS_DISCONNECTED;
+        }
     	HAL_RTC_GetTime(&hrtc,&tim,RTC_FORMAT_BIN);
     	HAL_RTC_GetDate(&hrtc,&dat,RTC_FORMAT_BIN);
 		Display_Time(tim);

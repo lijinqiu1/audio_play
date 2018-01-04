@@ -76,6 +76,7 @@
 //0待机，1工作
 uint8_t key_work_status = KEY_WORK_STATUS_READY;
 
+uint8_t usb_connect_status = USB_CONNECT_STATUS_DISCONNECTED;
 
 /* USER CODE END PV */
 
@@ -177,6 +178,11 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start(&htim3);
   IIC_Init();
+  //初始化工作状态
+  if(HAL_GPIO_ReadPin(VBUS_DET_GPIO_Port, VBUS_DET_Pin) == GPIO_PIN_SET)
+  {
+    usb_connect_status = USB_CONNECT_STATUS_CONNECTED;
+  }
   app_trace_log("hello!\n");
   /* USER CODE END 2 */
 
