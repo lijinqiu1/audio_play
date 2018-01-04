@@ -115,6 +115,9 @@
 #define OLED_CS_GPIO_Port GPIOE
 #define OLED_DC_Pin GPIO_PIN_5
 #define OLED_DC_GPIO_Port GPIOC
+
+#define SDIO_DET_Pin GPIO_PIN_13
+#define SDIO_DET_GPIO_Port GPIOC
 #endif
 
 #define KEY_FUN_Pin GPIO_PIN_7         /*待机模式:蓝牙耳机切换*/
@@ -153,13 +156,13 @@
 #define EVENTS_TASK_LOG_CREATE_BIT           (1UL << 16UL)
 
 /* IRQ PRI */
-#define IRQ_PRI_SD_RX_DMA                     0x06
+#define IRQ_PRI_SD_RX_DMA                     0x05
 #define IRQ_SUBPRI_SD_RX_DMA                  0x00
 
-#define IRQ_PRI_SD_TX_DMA                     0x07
+#define IRQ_PRI_SD_TX_DMA                     0x05
 #define IRQ_SUBPRI_SD_TX_DMA                  0x00
 
-#define IRQ_PRI_SDIO                          0x05
+#define IRQ_PRI_SDIO                          0x04
 #define IRQ_SUBPRI_SDIO                       0x00
 
 #define IRQ_PRI_USB_FS                        0x07

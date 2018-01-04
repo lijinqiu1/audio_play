@@ -237,6 +237,7 @@ static uint32_t wav_buffill(uint8_t *buf,uint8_t *tbuf,FIL*file,uint16_t size,ui
         }
 		else
 		{
+            app_trace_log("%s,%d,err:%d\n",__FUNCTION__,__LINE__,res);
             //app_trace_log("fs 0x%x\n",file->fs);
 			APP_ERROR_CHECK(res);
 		}
