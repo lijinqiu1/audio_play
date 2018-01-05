@@ -127,7 +127,7 @@ void MX_RTC_Init(void)
     Error_Handler();
   }
   
-  HAL_NVIC_SetPriority(RTC_Alarm_IRQn, IRQ_PRI_RTC, IRQ_USBPRI_RTC);
+  HAL_NVIC_SetPriority(RTC_Alarm_IRQn, IRQ_PRI_RTC, IRQ_SUBPRI_RTC);
   HAL_NVIC_EnableIRQ(RTC_Alarm_IRQn);
 }
 

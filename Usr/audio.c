@@ -564,6 +564,9 @@ void AudioController_Task(void const * argument)
 			{
 				app_trace_log("error:%x ,%s,%d\n",res,__FUNCTION__,__LINE__);
 			}
+            //保存播放文件名
+			sprintf(log,"PLAY %03d.wav",play_list[0]);
+			save_task_log(log_fil,log);
             app_trace_log("task log create\n");
 		}
 		if(xEventGroupValue&EVENTS_PLAY_AND_RECORD_END_BIT)

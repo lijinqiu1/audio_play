@@ -171,11 +171,11 @@
 #define IRQ_PRI_USB_FS                        0x07
 #define IRQ_SUBPRI_USB_FS                     0x00
 
-#define IRQ_PRI_IIS_DMA                       0x08
-#define IRQ_USBPRI_IIS_DMA                    0x00
+#define IRQ_PRI_IIS_DMA                       0x06
+#define IRQ_SUBPRI_IIS_DMA                    0x00
 
 #define IRQ_PRI_RTC                           0x0E
-#define IRQ_USBPRI_RTC                        0x00
+#define IRQ_SUBPRI_RTC                        0x00
 
 #define IRQ_PRI_RNG                           0x0a
 #define IRQ_SUBPRI_RNG                        0x00
