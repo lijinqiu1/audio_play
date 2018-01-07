@@ -207,6 +207,7 @@
 
 extern uint8_t key_work_status;
 extern uint8_t usb_connect_status;
+extern uint16_t battery_value[2];
 
 void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name);
 

@@ -36,9 +36,9 @@ static void Display_Time(RTC_TimeTypeDef tim)
 static void Display_work_status(RTC_TimeTypeDef tim)
 {
 	uint8_t time_buffer[6];
-    static uint8_t last_work_status = KEY_WORK_STATUS_PLAY;
     uint8_t minutes = 0;
     uint8_t seconds = 0;
+    static uint8_t last_work_status = KEY_WORK_STATUS_PLAY;
     static RTC_TimeTypeDef last_tim;
     if(last_work_status != key_work_status)
     {
@@ -139,12 +139,10 @@ static void Display_Battery_Value(uint16_t *battery_value)
 
 void Display_Process_Task(void const * argument)
 {
-    uint16_t battery_value[2] = {4096,4096};
 	RTC_DateTypeDef dat;
 	RTC_TimeTypeDef tim;
     OLED_Init();
     OLED_Clear();
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)battery_value, 2);
     app_trace_log("Display_Process_Task begin\n");
     while(1)
     {

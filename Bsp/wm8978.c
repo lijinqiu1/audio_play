@@ -13,7 +13,7 @@
 //All rights reserved
 //////////////////////////////////////////////////////////////////////////////////
 //记录音量(0~63)
-int8_t volume = 50;
+int16_t volume = WM8978_DAC_DEF_VOL;
 
 //WM8978寄存器值缓存区(总共58个寄存器,0~57),占用116字节内存
 //因为WM8978的IIC操作不支持读操作,所以在本地保存所有寄存器值
@@ -71,8 +71,11 @@ uint8_t WM8978_Init(void)
 	WM8978_Input_Cfg(1,1,0);								//开启输入通道(MIC&LINE IN)
 	WM8978_Output_Cfg(1,0);									//开启DAC输出
 	WM8978_MIC_Gain(63);									//MIC增益设置
-	WM8978_HPvol_Set(volume,volume);
-	WM8978_SPKvol_Set(volume);//50
+	//WM8978_HPvol_Set(volume,volume);
+	//WM8978_SPKvol_Set(volume);//50
+	WM8978_HPvol_Set(63,63);
+	WM8978_SPKvol_Set(63);//50
+	WM8978_DACvol_Set(WM8978_DAC_DEF_VOL);
 	return 0;
 }
 //WM8978写寄存器
@@ -249,6 +252,14 @@ void WM8978_SPKvol_Set(uint8_t volx)
  	WM8978_Write_Reg(54,volx);			//R54,喇叭左声道音量设置
 	WM8978_Write_Reg(55,volx|(1<<8));	//R55,喇叭右声道音量设置,同步更新(SPKVU=1)
 }
+
+
+void WM8978_DACvol_Set(uint8_t volx)
+{
+ 	WM8978_Write_Reg(11,volx);			//R54,喇叭左声道音量设置
+	WM8978_Write_Reg(12,volx|(1<<8));	//R55,喇叭右声道音量设置,同步更新(SPKVU=1)
+}
+
 //设置3D环绕声
 //depth:0~15(3D强度,0最弱,15最强)
 void WM8978_3D_Set(uint8_t depth)
@@ -335,7 +346,6 @@ void WM8978_EQ5_Set(uint8_t cfreq,uint8_t gain)
 	regval|=gain;		//设置增益
  	WM8978_Write_Reg(22,regval);//R22,EQ5设置
 }
-
 
 
 

@@ -65,10 +65,12 @@ static void BT_Power(uint8_t enable)
 #if defined(F429_ZET6)
 	if (enable)
 	{
-		HAL_GPIO_WritePin(PAIR_BT_GPIO_Port,PAIR_BT_Pin,GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(RESET_BT_GPIO_Port,RESET_BT_Pin,GPIO_PIN_SET);
+		HAL_GPIO_WritePin(PAIR_BT_GPIO_Port,PAIR_BT_Pin,GPIO_PIN_SET);
 		HAL_GPIO_WritePin(MODE_BT_GPIO_Port,MODE_BT_Pin,GPIO_PIN_RESET);
 		HAL_GPIO_WritePin(REF_EN_GPIO_Port,REF_EN_Pin,GPIO_PIN_SET);
+		HAL_GPIO_WritePin(RESET_BT_GPIO_Port,RESET_BT_Pin,GPIO_PIN_RESET);
+        osDelay(10);
+		HAL_GPIO_WritePin(RESET_BT_GPIO_Port,RESET_BT_Pin,GPIO_PIN_SET);
 	}
 	else
 	{
@@ -206,26 +208,7 @@ static uint32_t wav_buffill(uint8_t *buf,uint8_t *tbuf,FIL*file,uint16_t size,ui
     FRESULT res;
 
 //	xSemaphoreTake(xSdioMutex,portMAX_DELAY);
-	if(bits==24)//24bit音频,需要处理一下
-	{
-		readlen=(size/4)*3;							//此次要读取的字节数
-		res = f_read(file,tbuf,readlen,(UINT*)&bread);	//读取数据
-		if (res != FR_OK)
-		{
-			return 0;
-		}
-		p=audiodev.tbuf;
-		for(i=0;i<size;)
-		{
-			buf[i++]=p[1];
-			buf[i]=p[2];
-			i+=2;
-			buf[i++]=p[0];
-			p+=3;
-		}
-		bread=(bread*4)/3;		//填充后的大小.
-	}
-	else
+	if(bits!=24)//24bit音频,需要处理一下
 	{
 		res = f_read(file,buf,size,(UINT*)&bread);//16bit音频,直接读取数据
         if (res == FR_OK)
@@ -241,6 +224,25 @@ static uint32_t wav_buffill(uint8_t *buf,uint8_t *tbuf,FIL*file,uint16_t size,ui
             //app_trace_log("fs 0x%x\n",file->fs);
 			APP_ERROR_CHECK(res);
 		}
+	}
+	else
+	{
+        readlen=(size/4)*3;							//此次要读取的字节数
+		res = f_read(file,tbuf,readlen,(UINT*)&bread);	//读取数据
+		if (res != FR_OK)
+		{
+			return 0;
+		}
+		p=audiodev.tbuf;
+		for(i=0;i<size;)
+		{
+			buf[i++]=p[1];
+			buf[i]=p[2];
+			i+=2;
+			buf[i++]=p[0];
+			p+=3;
+		}
+		bread=(bread*4)/3;		//填充后的大小.
 	}
 //	xSemaphoreGive(xSdioMutex);
 	return bread;
@@ -479,12 +481,13 @@ void AudioController_Task(void const * argument)
 		if((xEventGroupValue&EVENTS_VOL_UP_BIT)!=0)
 		{//音量增加
 			volume+=5;
-			if (volume > 63)
+			if (volume > WM8978_DAC_MAX_VOL)
 			{
-				volume = 63;
+				volume = WM8978_DAC_MAX_VOL;
 			}
-			WM8978_HPvol_Set(volume,volume);
-			WM8978_SPKvol_Set(volume);
+			//WM8978_HPvol_Set(volume,volume);
+			//WM8978_SPKvol_Set(volume);
+            WM8978_DACvol_Set(volume);
 			//记录log
 			sprintf(log,"volume+");
 			save_task_log(log_fil,log);
@@ -498,8 +501,9 @@ void AudioController_Task(void const * argument)
 			{
 				volume = 0;
 			}
-			WM8978_HPvol_Set(volume,volume);
-			WM8978_SPKvol_Set(volume);
+			//WM8978_HPvol_Set(volume,volume);
+			//WM8978_SPKvol_Set(volume);
+            WM8978_DACvol_Set(volume);
 			//记录log
 			sprintf(log,"volume-");
 			save_task_log(log_fil,log);
@@ -514,6 +518,7 @@ void AudioController_Task(void const * argument)
 				BT_Power(0);
 				sprintf(log,"BLE CLOSE");
 				send_log(log);
+				app_trace_log("BLE CLOSE!\n");
 			}
 			else
 			{
@@ -521,6 +526,7 @@ void AudioController_Task(void const * argument)
 				BT_Power(1);
 				sprintf(log,"BLE OPEN");
 				send_log(log);
+				app_trace_log("BLE OPEN!\n");
 			}
 		}
         if((xEventGroupValue&EVENTS_BLE_PAIR_BIT)!=0)
@@ -529,7 +535,7 @@ void AudioController_Task(void const * argument)
             {
                 HAL_GPIO_WritePin(PAIR_BT_GPIO_Port, PAIR_BT_Pin, GPIO_PIN_RESET);
                 osDelay(100);
-                HAL_GPIO_WritePin(PAIR_BT_GPIO_Port, PAIR_BT_Pin, GPIO_PIN_RESET);
+                HAL_GPIO_WritePin(PAIR_BT_GPIO_Port, PAIR_BT_Pin, GPIO_PIN_SET);
     			sprintf(log,"BLE PAIR");
             }
         }
@@ -891,9 +897,6 @@ void AudioPlay_With_List_Task(void const *argument)
 			}
 			//初始化IIS时钟
 			IIS_Init(wavctrl.bps,wavctrl.samplerate);
-			//启动dma开始播放
-			HAL_I2SEx_TransmitReceive_DMA_A(&hi2s2,(uint16_t *)audiodev.i2sbuf1,(uint16_t *)audiodev.i2sbuf2,\
-				WAV_I2S_TX_DMA_BUFSIZE/2);
 			//开始录音播放
 			//进入播放模式
 			play_begin = 1;
@@ -901,6 +904,9 @@ void AudioPlay_With_List_Task(void const *argument)
 			stop_play_record = 0;
 			HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_RESET);
             xEventGroupSetBits(xEventGroup, EVENTS_TASK_LOG_CREATE_BIT);
+			//启动dma开始播放
+			HAL_I2SEx_TransmitReceive_DMA_A(&hi2s2,(uint16_t *)audiodev.i2sbuf1,(uint16_t *)audiodev.i2sbuf2,\
+				WAV_I2S_TX_DMA_BUFSIZE/2);
 		}
 		if ((xEventGroupValue & EVENTS_FUN_STOP_BIT) != 0)
 		{//停止播放
@@ -969,14 +975,14 @@ void AudioPlay_With_List_Task(void const *argument)
 										wavctrl.bps);//填充buf1
 //					xSemaphoreTake(xSdioMutex,portMAX_DELAY);
 					res=f_write(audiodev.file2,audiodev.i2sbuf2+WAV_I2S_RX_DMA_BUFSIZE/2,WAV_I2S_RX_DMA_BUFSIZE/2,(UINT*)&bw);//写入文件
-					if(res != FR_OK)
+					if(res == FR_OK)
 					{
-						app_trace_log("write error:%d %d\r\n",res,__LINE__);
+						wavsize+=WAV_I2S_RX_DMA_BUFSIZE/2;
+						//f_sync(audiodev.file2);
 					}
 					else
 					{
-						wavsize+=WAV_I2S_RX_DMA_BUFSIZE/2;
-						f_sync(audiodev.file2);
+						app_trace_log("write error:%d %d\r\n",res,__LINE__);
 					}
 //					xSemaphoreGive(xSdioMutex);
 				}
@@ -985,14 +991,14 @@ void AudioPlay_With_List_Task(void const *argument)
 					fillnum=wav_buffill(audiodev.i2sbuf1,audiodev.tbuf,audiodev.file1,WAV_I2S_TX_DMA_BUFSIZE/2,wavctrl.bps);//填充buf1
 //					xSemaphoreTake(xSdioMutex,portMAX_DELAY);
 					res=f_write(audiodev.file2,audiodev.i2sbuf2,WAV_I2S_RX_DMA_BUFSIZE/2,(UINT*)&bw);//写入文件
-					if(res != FR_OK)
+					if(res == FR_OK)
 					{
-						app_trace_log("write error:%d %d\r\n",res,__LINE__);
+						wavsize+=WAV_I2S_RX_DMA_BUFSIZE/2;
+						//f_sync(audiodev.file2);
 					}
 					else
 					{
-						wavsize+=WAV_I2S_RX_DMA_BUFSIZE/2;
-						f_sync(audiodev.file2);
+						app_trace_log("write error:%d %d\r\n",res,__LINE__);
 					}
 //					xSemaphoreGive(xSdioMutex);
 				}

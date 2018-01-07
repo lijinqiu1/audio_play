@@ -43,8 +43,11 @@
 #define EQ5_9000Hz		0X02
 #define EQ5_11700Hz		0X03
 
+#define WM8978_DAC_MAX_VOL  0xff
+#define WM8978_DAC_DEF_VOL  200
+
 //记录音量大小
-extern int8_t volume;
+extern int16_t volume;
 
 uint8_t WM8978_Init(void);
 void WM8978_ADDA_Cfg(uint8_t dacen,uint8_t adcen);
@@ -57,6 +60,7 @@ uint8_t WM8978_Write_Reg(uint8_t reg,uint16_t val);
 uint16_t WM8978_Read_Reg(uint8_t reg);
 void WM8978_HPvol_Set(uint8_t voll,uint8_t volr);
 void WM8978_SPKvol_Set(uint8_t volx);
+void WM8978_DACvol_Set(uint8_t volx);
 void WM8978_I2S_Cfg(uint8_t fmt,uint8_t len);
 void WM8978_3D_Set(uint8_t depth);
 void WM8978_EQ_3D_Dir(uint8_t dir);

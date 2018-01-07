@@ -78,6 +78,8 @@ uint8_t key_work_status = KEY_WORK_STATUS_READY;
 
 uint8_t usb_connect_status = USB_CONNECT_STATUS_DISCONNECTED;
 
+uint16_t battery_value[2] = {4096,4096};
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -177,6 +179,7 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start(&htim3);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)battery_value, 2);
   IIC_Init();
   //初始化工作状态
   if(HAL_GPIO_ReadPin(VBUS_DET_GPIO_Port, VBUS_DET_Pin) == GPIO_PIN_SET)
