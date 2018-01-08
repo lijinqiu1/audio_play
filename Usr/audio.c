@@ -537,6 +537,7 @@ void AudioController_Task(void const * argument)
                 osDelay(100);
                 HAL_GPIO_WritePin(PAIR_BT_GPIO_Port, PAIR_BT_Pin, GPIO_PIN_SET);
     			sprintf(log,"BLE PAIR");
+				send_log(log);
             }
         }
 		if((xEventGroupValue&EVENTS_FUN_USB_BIT)!=0)
