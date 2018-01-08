@@ -57,32 +57,27 @@ static void Display_work_status(RTC_TimeTypeDef tim)
     }
     else if (key_work_status == KEY_WORK_STATUS_PLAY)
     {
-		if (tim.Hours >= last_tim.Hours)
+		if (last_tim.Hours == tim.Hours)
 		{
-			minutes = (tim.Hours - last_tim.Hours) * 60 ;
-		}
-		else
-		{
-			minutes = (last_tim.Hours - tim.Hours) * 60;
-		}
-
-        if (tim.Minutes >= last_tim.Minutes)
-        {
-            minutes += tim.Minutes - last_tim.Minutes;
+            minutes = ((tim.Minutes * 60 + tim.Seconds) - \
+                (last_tim.Minutes * 60 + last_tim.Seconds)) / 60;
+            seconds = ((tim.Minutes * 60 + tim.Seconds) - \
+                (last_tim.Minutes * 60 + last_tim.Seconds)) % 60;
         }
-        else
+        else if(last_tim.Hours < tim.Hours)
         {
-            minutes += last_tim.Minutes - tim.Minutes;
+            minutes = ((tim.Hours * 3600 + tim.Minutes * 60 + tim.Seconds) - \
+                (last_tim.Hours * 3600 + last_tim.Minutes * 60 + last_tim.Seconds)) / 60;
+            seconds = ((tim.Hours * 3600 + tim.Minutes * 60 + tim.Seconds) - \
+                (last_tim.Hours * 3600 + last_tim.Minutes * 60 + last_tim.Seconds)) % 60;
         }
-        
-		if (tim.Seconds >= last_tim.Seconds)
-		{
-			seconds = tim.Seconds - last_tim.Seconds;
-		}
-		else
-		{
-			seconds = 60 + tim.Seconds - last_tim.Seconds;
-		}
+        else if(last_tim.Hours > tim.Hours)
+        {
+            minutes = (((tim.Hours + 24) * 3600 + tim.Minutes * 60 + tim.Seconds) - \
+                (last_tim.Hours * 3600 + last_tim.Minutes * 60 + last_tim.Seconds)) / 60;
+            seconds = (((tim.Hours + 24) * 3600 + tim.Minutes * 60 + tim.Seconds) - \
+                (last_tim.Hours * 3600 + last_tim.Minutes * 60 + last_tim.Seconds)) % 60;
+        }
         sprintf((char *)time_buffer,"%02d:%02d",minutes,seconds);
 	    OLED_ShowString(DISPLAY_WORK_STATUS_X,DISPLAY_WORK_STATUS_Y,time_buffer,12);
     }
@@ -92,7 +87,7 @@ static void Display_Battery_Value(uint16_t *battery_value)
 {
     uint16_t value = battery_value[0] * 1.0 /battery_value[1] * 4.2;
     static uint8_t index = 0;
-    if(usb_connect_status == USB_CONNECT_STATUS_DISCONNECTED)
+    if(HAL_GPIO_ReadPin(VBUS_DET_GPIO_Port, VBUS_DET_Pin) == GPIO_PIN_RESET)
     {
         if(value > 3.8)
         {
@@ -146,14 +141,14 @@ void Display_Process_Task(void const * argument)
     app_trace_log("Display_Process_Task begin\n");
     while(1)
     {
-        if(HAL_GPIO_ReadPin(VBUS_DET_GPIO_Port, VBUS_DET_Pin))
-        {
-            usb_connect_status = USB_CONNECT_STATUS_CONNECTED;
-        }
-        else
-        {
-            usb_connect_status = USB_CONNECT_STATUS_DISCONNECTED;
-        }
+//        if(HAL_GPIO_ReadPin(VBUS_DET_GPIO_Port, VBUS_DET_Pin))
+//        {
+//            usb_connect_status = USB_CONNECT_STATUS_CONNECTED;
+//        }
+//        else
+//        {
+//            usb_connect_status = USB_CONNECT_STATUS_DISCONNECTED;
+//        }
     	HAL_RTC_GetTime(&hrtc,&tim,RTC_FORMAT_BIN);
     	HAL_RTC_GetDate(&hrtc,&dat,RTC_FORMAT_BIN);
 		Display_Time(tim);
