@@ -531,7 +531,7 @@ void AudioController_Task(void const * argument)
 		}
         if((xEventGroupValue&EVENTS_BLE_PAIR_BIT)!=0)
         {
-            if (ble_status == 0)
+            if (ble_status == 1)
             {
                 HAL_GPIO_WritePin(PAIR_BT_GPIO_Port, PAIR_BT_Pin, GPIO_PIN_RESET);
                 osDelay(100);
