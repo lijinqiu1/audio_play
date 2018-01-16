@@ -183,8 +183,8 @@ int main(void)
   //初始化工作状态
   if(HAL_GPIO_ReadPin(VBUS_DET_GPIO_Port, VBUS_DET_Pin) == GPIO_PIN_SET)
   {
-    usb_connect_status = USB_CONNECT_STATUS_CONNECTED;
-    MX_USB_DEVICE_Init();
+//    usb_connect_status = USB_CONNECT_STATUS_CONNECTED;
+//    MX_USB_DEVICE_Init();
   }
   app_trace_log("hello!\n");
   /* USER CODE END 2 */

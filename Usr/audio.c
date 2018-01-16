@@ -24,9 +24,14 @@ __audiodev audiodev;
 
 //*********************************变量声明*****************************
 uint32_t wavsize;  //wav数据大小
-
+#if defined (IIS_DMA_A)
 uint8_t wavrxtxflag=0; //txrx传输状态标识
-
+#else
+uint8_t wavtxintflag = 0;
+uint8_t wavrxintflag = 0;
+uint8_t wavtxflag=0; //tx传输状态标识
+uint8_t wavrxflag=0; //rx传输状态标识
+#endif
 //**********************************************************************
 
 //采样率计算公式:Fs=I2SxCLK/[256*(2*I2SDIV+ODD)]
@@ -905,9 +910,15 @@ void AudioPlay_With_List_Task(void const *argument)
 			stop_play_record = 0;
 			HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_RESET);
             xEventGroupSetBits(xEventGroup, EVENTS_TASK_LOG_CREATE_BIT);
+            #if defined (IIS_DMA_A)
 			//启动dma开始播放
 			HAL_I2SEx_TransmitReceive_DMA_A(&hi2s2,(uint16_t *)audiodev.i2sbuf1,(uint16_t *)audiodev.i2sbuf2,\
 				WAV_I2S_TX_DMA_BUFSIZE/2);
+            #else
+			//启动dma开始播放
+			HAL_I2SEx_TransmitReceive_DMA_B(&hi2s2,(uint16_t *)audiodev.i2sbuf1,(uint16_t *)audiodev.i2sbuf2,\
+				WAV_I2S_TX_DMA_BUFSIZE/2,WAV_I2S_RX_DMA_BUFSIZE/2);
+            #endif
 		}
 		if ((xEventGroupValue & EVENTS_FUN_STOP_BIT) != 0)
 		{//停止播放
@@ -970,6 +981,7 @@ void AudioPlay_With_List_Task(void const *argument)
 						goto end;
 					}
 				}
+#if defined (IIS_DMA_A)
 				if (wavrxtxflag)
 				{
 					fillnum=wav_buffill(audiodev.i2sbuf1+(WAV_I2S_TX_DMA_BUFSIZE/2),audiodev.tbuf,audiodev.file1,WAV_I2S_TX_DMA_BUFSIZE/2,\
@@ -1003,6 +1015,51 @@ void AudioPlay_With_List_Task(void const *argument)
 					}
 //					xSemaphoreGive(xSdioMutex);
 				}
+#else
+                if(wavtxintflag)
+                {
+                    wavtxintflag = 0;
+                    if(wavtxflag)
+                    {
+                        fillnum=wav_buffill(audiodev.i2sbuf1+(WAV_I2S_TX_DMA_BUFSIZE/2),audiodev.tbuf,audiodev.file1,WAV_I2S_TX_DMA_BUFSIZE/2,\
+                                                                wavctrl.bps);//填充buf1
+                    }
+                    else
+                    {
+                        fillnum=wav_buffill(audiodev.i2sbuf1,audiodev.tbuf,audiodev.file1,WAV_I2S_TX_DMA_BUFSIZE/2,wavctrl.bps);//填充buf1
+                    }
+                }
+                if(wavrxintflag)
+                {
+                    wavrxintflag = 0;
+                    if(wavrxflag)
+                    {
+                        res=f_write(audiodev.file2,audiodev.i2sbuf2+WAV_I2S_RX_DMA_BUFSIZE/2,WAV_I2S_RX_DMA_BUFSIZE/2,(UINT*)&bw);//写入文件
+    					if(res == FR_OK)
+    					{
+    						wavsize+=WAV_I2S_RX_DMA_BUFSIZE/2;
+    						//f_sync(audiodev.file2);
+    					}
+    					else
+    					{
+    						app_trace_log("write error:%d %d\r\n",res,__LINE__);
+    					}
+                    }
+                    else
+                    {
+                        res=f_write(audiodev.file2,audiodev.i2sbuf2,WAV_I2S_RX_DMA_BUFSIZE/2,(UINT*)&bw);//写入文件
+    					if(res == FR_OK)
+    					{
+    						wavsize+=WAV_I2S_RX_DMA_BUFSIZE/2;
+    						//f_sync(audiodev.file2);
+    					}
+    					else
+    					{
+    						app_trace_log("write error:%d %d\r\n",res,__LINE__);
+    					}
+                    }
+                }
+#endif
 			}
 
 end:
@@ -1401,6 +1458,9 @@ error1:
 //	osThreadTerminate(osThreadGetId());
 }
 #endif
+
+#if defined (IIS_DMA_A)
+
 void HAL_I2SEx_TxRxHalfCpltCallback(I2S_HandleTypeDef * hi2s)
 {
     UNUSED(hi2s);
@@ -1430,4 +1490,69 @@ void HAL_I2SEx_TxRxCpltCallback(I2S_HandleTypeDef * hi2s)
 	
 	portYIELD_FROM_ISR(xHigherPriorityTaskWorken);
 }
+
+#else
+
+void HAL_I2SEx_TxCpltCallback(I2S_HandleTypeDef * hi2s)
+{
+    UNUSED(hi2s);
+    BaseType_t xHigherPriorityTaskWorken;
+    wavtxintflag = 1;
+    wavtxflag = 1;
+    xHigherPriorityTaskWorken = pdFALSE;
+#if defined(PLAY_WITH_LIST)
+    vTaskNotifyGiveFromISR(audioplaywithlistTaskHandle,&xHigherPriorityTaskWorken);
+#elif defined(PLAY_WITH_RNG)
+    vTaskNotifyGiveFromISR(audioplayTaskHandle,&xHigherPriorityTaskWorken);
+#endif
+    portYIELD_FROM_ISR(xHigherPriorityTaskWorken);
+
+}
+void HAL_I2SEx_TxHalfCpltCallback(I2S_HandleTypeDef * hi2s)
+{
+    UNUSED(hi2s);
+	BaseType_t xHigherPriorityTaskWorken;
+    wavtxintflag = 1;
+	wavtxflag = 0;
+	xHigherPriorityTaskWorken = pdFALSE;
+#if defined(PLAY_WITH_LIST)
+	vTaskNotifyGiveFromISR(audioplaywithlistTaskHandle,&xHigherPriorityTaskWorken);
+#elif defined(PLAY_WITH_RNG)
+	vTaskNotifyGiveFromISR(audioplayTaskHandle,&xHigherPriorityTaskWorken);
+#endif
+
+	portYIELD_FROM_ISR(xHigherPriorityTaskWorken);
+}
+void HAL_I2SEx_RxCpltCallback(I2S_HandleTypeDef * hi2s)
+{
+    UNUSED(hi2s);
+    BaseType_t xHigherPriorityTaskWorken;
+    wavrxintflag = 1;
+    wavrxflag = 1;
+    xHigherPriorityTaskWorken = pdFALSE;
+#if defined(PLAY_WITH_LIST)
+    vTaskNotifyGiveFromISR(audioplaywithlistTaskHandle,&xHigherPriorityTaskWorken);
+#elif defined(PLAY_WITH_RNG)
+    vTaskNotifyGiveFromISR(audioplayTaskHandle,&xHigherPriorityTaskWorken);
+#endif
+    portYIELD_FROM_ISR(xHigherPriorityTaskWorken);
+
+}
+void HAL_I2SEx_RxHalfCpltCallback(I2S_HandleTypeDef * hi2s)
+{
+    UNUSED(hi2s);
+    BaseType_t xHigherPriorityTaskWorken;
+    wavrxintflag = 1;
+    wavrxflag = 0;
+    xHigherPriorityTaskWorken = pdFALSE;
+#if defined(PLAY_WITH_LIST)
+    vTaskNotifyGiveFromISR(audioplaywithlistTaskHandle,&xHigherPriorityTaskWorken);
+#elif defined(PLAY_WITH_RNG)
+    vTaskNotifyGiveFromISR(audioplayTaskHandle,&xHigherPriorityTaskWorken);
+#endif
+
+    portYIELD_FROM_ISR(xHigherPriorityTaskWorken);
+
+}
+#endif
 

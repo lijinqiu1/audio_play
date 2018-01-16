@@ -168,11 +168,14 @@
 #define IRQ_PRI_SDIO                          0x04
 #define IRQ_SUBPRI_SDIO                       0x00
 
-#define IRQ_PRI_USB_FS                        0x07
+#define IRQ_PRI_USB_FS                        0x08
 #define IRQ_SUBPRI_USB_FS                     0x00
 
-#define IRQ_PRI_IIS_DMA                       0x06
-#define IRQ_SUBPRI_IIS_DMA                    0x00
+#define IRQ_PRI_IIS_RX_DMA                    0x07
+#define IRQ_SUBPRI_IIS_RX_DMA                 0x00
+
+#define IRQ_PRI_IIS_TX_DMA                    0x06
+#define IRQ_SUBPRI_IIS_TX_DMA                 0x00
 
 #define IRQ_PRI_RTC                           0x0E
 #define IRQ_SUBPRI_RTC                        0x00
