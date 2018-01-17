@@ -124,7 +124,7 @@ void MX_FREERTOS_Init(void) {
 
   /*Â¼Òô¡¢²¥·ÅÏß³Ì*/
   #if defined(PLAY_WITH_LIST)
-  osThreadDef(audioplaywithlistTask,AudioPlay_With_List_Task,osPriorityRealtime,0,4096);
+  osThreadDef(audioplaywithlistTask,AudioPlay_With_List_Task,osPriorityRealtime,0,8192);
   audioplaywithlistTaskHandle = osThreadCreate(osThread(audioplaywithlistTask),NULL);
   #elif defined(PLAY_WITH_RNG)
   osThreadDef(audioplayTask,AudioPlay_Task,osPriorityHigh,0,4096);

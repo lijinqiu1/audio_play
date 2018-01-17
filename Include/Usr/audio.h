@@ -21,7 +21,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-#define WAV_I2S_TX_DMA_BUFSIZE    12288		//定义WAV TX DMA 数组大小(播放192Kbps@24bit的时候,需要设置8192大才不会卡)
+#define WAV_I2S_TX_DMA_BUFSIZE    16384		//定义WAV TX DMA 数组大小(播放192Kbps@24bit的时候,需要设置8192大才不会卡)
 #define WAV_I2S_RX_DMA_BUFSIZE    WAV_I2S_TX_DMA_BUFSIZE
 
 //RIFF块
