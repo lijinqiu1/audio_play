@@ -63,6 +63,8 @@
 	#undef PLAY_WITH_RNG
 #endif
 
+#define IIS_DMA_B
+
 /* Private define ------------------------------------------------------------*/
 #if defined(F429_BIT6)
 #define KEY_Pin GPIO_PIN_8
@@ -142,8 +144,8 @@
 /* EVENTS GROUP */
 #define EVENTS_VOL_UP_BIT                    (1UL <<  0UL)
 #define EVENTS_VOL_DOWN_BIT                  (1UL <<  1UL)
-#define EVENTS_ASK_BIT                       (1UL <<  2UL)
-#define EVENTS_BLE_PAIR_BIT                  (1UL <<  3UL)
+#define EVENTS_REPORT_BIT                    (1UL <<  2UL)
+#define EVENTS_FUN_BLE_PAIR_BIT              (1UL <<  3UL)
 #define EVENTS_FUN_BLE_CHANGE_BIT            (1UL <<  4UL)
 #define EVENTS_FUN_USB_BIT                   (1UL <<  5UL)
 #define EVENTS_FUN_STOP_BIT                  (1UL <<  6UL)
@@ -151,7 +153,7 @@
 #define EVENTS_PLAY_END_BIT                  (1UL <<  8UL)
 #define EVENTS_PLAY_AND_RECORD_BIT           (1UL <<  9UL)
 #define EVENTS_PLAY_AND_RECORD_END_BIT       (1UL << 10UL)
-#define EVENTS_PLAY_CASE_BIT                 (1UL << 11UL)
+#define EVENTS_PLAY_CANCEL_BIT               (1UL << 11UL)
 #define EVENTS_PLAY_NEW_SONG_BIT             (1UL << 12UL)
 #define EVENTS_RECORD_BIT                    (1UL << 13UL)
 #define EVENTS_RECORD_END_BIT                (1UL << 14UL)
@@ -171,7 +173,7 @@
 #define IRQ_PRI_USB_FS                        0x08
 #define IRQ_SUBPRI_USB_FS                     0x00
 
-#define IRQ_PRI_IIS_RX_DMA                    0x07
+#define IRQ_PRI_IIS_RX_DMA                    0x06
 #define IRQ_SUBPRI_IIS_RX_DMA                 0x00
 
 #define IRQ_PRI_IIS_TX_DMA                    0x06

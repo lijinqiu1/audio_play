@@ -22,7 +22,7 @@
 
 
 #define WAV_I2S_TX_DMA_BUFSIZE    16384		//定义WAV TX DMA 数组大小(播放192Kbps@24bit的时候,需要设置8192大才不会卡)
-#define WAV_I2S_RX_DMA_BUFSIZE    WAV_I2S_TX_DMA_BUFSIZE
+#define WAV_I2S_RX_DMA_BUFSIZE    15360
 
 //RIFF块
 typedef __packed struct
@@ -96,19 +96,30 @@ typedef __packed struct
 typedef __packed struct
 {
 	//2个I2S解码的BUF
-	uint8_t *i2sbuf1;
-	uint8_t *i2sbuf2;
-	uint8_t *tbuf;				//零时数组,仅在24bit解码的时候需要用到
-	FIL *file1;				//音频文件指针
-	FIL *file2;				//音频文件指针
-
-	uint8_t status;				//bit0:0,暂停播放;1,继续播放
-							//bit1:0,结束播放;1,开启播放
+	uint8_t      *i2sbuf1;
+	uint8_t      *i2sbuf2;
+	uint8_t      *tbuf;				    //零时数组,仅在24bit解码的时候需要用到
+	FIL          *file1;				//音频文件指针
+	FIL          *file2;				//音频文件指针
+    __wavctrl    wavctrl;               //wav文件描述播放文件使用
+    __WaveHeader wavHeader;             //wav文件头录音文件使用
+	uint8_t      status;				//bit0:0,暂停播放;1,继续播放
+							            //bit1:0,结束播放;1,开启播放
+	uint32_t     file_count;
+    uint32_t     file_bw;
+    uint32_t     wavsize;               //录音文件大小
+    uint8_t      *file_list;
+    uint8_t      file_index;            //当前文件播放序列
 }__audiodev;
 
 void AudioPlay_Task(void const * argument);
 #if defined(PLAY_WITH_LIST)
+#if defined(IIS_DMA_A)
 void AudioPlay_With_List_Task(void const * argument);
+#else
+void AudioPlay_With_List_Tx_Task(void const * argument);
+void AudioPlay_With_List_Rx_Task(void const * argument);
+#endif
 #elif defined(PLAY_WITH_RNG)
 void AudioPlay_Task(void const * argument);
 #endif

@@ -69,7 +69,13 @@ SemaphoreHandle_t xSdioMutex;
 extern QueueHandle_t xQueueLog;
 
 #if defined(PLAY_WITH_LIST)
+#if defined(IIS_DMA_A)
 extern osThreadId audioplaywithlistTaskHandle;
+#else
+extern osThreadId audioplaywithlistTxTaskHandle;
+extern osThreadId audioplaywithlistRxTaskHandle;
+#endif
+
 #elif defined(PLAY_WITH_RNG)
 extern osThreadId audioplayTaskHandle;
 #endif
@@ -124,8 +130,15 @@ void MX_FREERTOS_Init(void) {
 
   /*Â¼Òô¡¢²¥·ÅÏß³Ì*/
   #if defined(PLAY_WITH_LIST)
+  #if defined(IIS_DMA_A)
   osThreadDef(audioplaywithlistTask,AudioPlay_With_List_Task,osPriorityRealtime,0,8192);
   audioplaywithlistTaskHandle = osThreadCreate(osThread(audioplaywithlistTask),NULL);
+  #else
+  osThreadDef(audioplaywithlistTxTask,AudioPlay_With_List_Tx_Task,osPriorityRealtime,0,2048);
+  audioplaywithlistTxTaskHandle = osThreadCreate(osThread(audioplaywithlistTxTask),NULL);
+  osThreadDef(audioplaywithlistRxTask,AudioPlay_With_List_Rx_Task,osPriorityHigh,0,2048);
+  audioplaywithlistRxTaskHandle = osThreadCreate(osThread(audioplaywithlistRxTask),NULL);
+  #endif
   #elif defined(PLAY_WITH_RNG)
   osThreadDef(audioplayTask,AudioPlay_Task,osPriorityHigh,0,4096);
   audioplayTaskHandle = osThreadCreate(osThread(audioplayTask),NULL);
