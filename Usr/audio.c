@@ -832,7 +832,8 @@ void AudioController_Task(void const * argument)
 		                                  EVENTS_PLAY_AND_RECORD_BIT|
 										  EVENTS_PLAY_AND_RECORD_END_BIT|
 										  EVENTS_PLAY_NEW_SONG_BIT|
-										  EVENTS_PLAY_CANCEL_BIT);
+										  EVENTS_PLAY_CANCEL_BIT|
+										  EVENTS_REPORT_BIT);
     
     app_trace_log("AudioController_Task begin\n");
 	log_fil = (FIL*)pvPortMalloc(sizeof(FIL));
@@ -932,9 +933,9 @@ void AudioController_Task(void const * argument)
         /*报告记录*/
 		if((xEventGroupValue&EVENTS_REPORT_BIT)!=0)
 		{
+			save_task_log(log_fil,log);
 			sprintf(log,"report");
 			send_log(log);
-			save_task_log(log_fil,log);
 			app_trace_log("report\n");
 		}
         /*任务开始*/
@@ -1490,6 +1491,7 @@ void AudioPlay_With_List_Tx_Task(void const * argument)
                     {
                         app_trace_log("error:%d %s,%d\n",res,__FUNCTION__,__LINE__);
                     }
+
 					//缓存音频播放数据
 					audiodev.file_bw=wav_buffill(audiodev.i2sbuf1,audiodev.tbuf,audiodev.file1,WAV_I2S_TX_DMA_BUFSIZE,audiodev.wavctrl.bps);
 					audiodev.file_bw = WAV_I2S_TX_DMA_BUFSIZE/2;
@@ -1554,6 +1556,7 @@ void AudioPlay_With_List_Rx_Task(void const * argument)
                     app_trace_log("write error:%d %d\r\n",res,__LINE__);
                 }
             }
+            f_sync(audiodev.file2);
         }
     }
 }
