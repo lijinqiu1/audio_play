@@ -24,6 +24,27 @@ static void DisPlay_Stop(void)
     OLED_ShowCHinese(32, 2, 1, (uint8_t (*)[32])HzSTOP);
 }
 
+static void DisPlay_Task(void)
+{
+    if (cur_task_index < 10)
+    {
+        OLED_ShowCHinese(8, 2, 0, (uint8_t (*)[32])HzTask);
+        OLED_ShowCHinese(24, 2, 1, (uint8_t (*)[32])HzTask);
+        OLED_ShowNum(40, 2, cur_task_index, 1, 16);
+    }
+    else if(cur_task_index < 100)
+    {
+        OLED_ShowCHinese(8, 2, 0, (uint8_t (*)[32])HzTask);
+        OLED_ShowCHinese(24, 2, 1, (uint8_t (*)[32])HzTask);
+        OLED_ShowNum(40, 2, cur_task_index, 2, 16);
+    }
+    else
+    {
+        OLED_ShowCHinese(8, 2, 0, (uint8_t (*)[32])HzTask);
+        OLED_ShowCHinese(24, 2, 1, (uint8_t (*)[32])HzTask);
+        OLED_ShowNum(40, 2, cur_task_index, 3, 16);
+    }
+}
 
 static void Display_Time(RTC_TimeTypeDef tim)
 {
@@ -45,9 +66,7 @@ static void Display_work_status(RTC_TimeTypeDef tim)
         last_work_status = key_work_status;
         if (key_work_status == KEY_WORK_STATUS_READY)
         {
-            sprintf((char *)time_buffer,"00:00");
-            DisPlay_Stop();
-	        OLED_ShowString(DISPLAY_WORK_STATUS_X,DISPLAY_WORK_STATUS_Y,time_buffer,12);
+            DisPlay_Task();
         }
         else
         {
@@ -138,7 +157,8 @@ void Display_Process_Task(void const * argument)
 	RTC_TimeTypeDef tim;
     OLED_Init();
     OLED_Clear();
-    app_trace_log("Display_Process_Task begin\n");
+	EventBits_t xEventGroupValue;
+	const EventBits_t xBitsToWaitFor = (EVENTS_KEY_UP|EVENTS_KEY_DOWN);
     while(1)
     {
 //        if(HAL_GPIO_ReadPin(VBUS_DET_GPIO_Port, VBUS_DET_Pin))
@@ -149,13 +169,44 @@ void Display_Process_Task(void const * argument)
 //        {
 //            usb_connect_status = USB_CONNECT_STATUS_DISCONNECTED;
 //        }
+        //¶ÂÈûÄ£Ê½
+        xEventGroupValue = xEventGroupWaitBits(/* The event group to read. */
+                                               xEventGroup,
+                                               /* Bits to test. */
+                                               xBitsToWaitFor,
+                                               /* Clear bits on exit if the
+                                                unblock condition is met. */
+                                               pdTRUE,
+                                               /* Don't wait for all bits. This
+                                                parameter is set to pdTRUE for the
+                                                second execution. */
+                                               pdFALSE,
+                                               /* Don't time out. */
+                                               1000);
+        if(xEventGro(xEventGroupValue&EVENTS_KEY_UP_BIT)!=0)
+        {
+            cur_task_index ++;
+            if (cur_task_index > task_count)
+            {
+                cur_task_index = 0;
+            }
+        }
+
+        if(xEventGro(xEventGroupValue&EVENTS_KEY_DOWN_BIT)!=0)
+        {
+            cur_task_index --;
+            if (cur_task_index < 0)
+            {
+                cur_task_index = task_count;
+            }
+        }
+
     	HAL_RTC_GetTime(&hrtc,&tim,RTC_FORMAT_BIN);
     	HAL_RTC_GetDate(&hrtc,&dat,RTC_FORMAT_BIN);
 		Display_Time(tim);
         Display_work_status(tim);
         Display_Battery_Value(battery_value);
         //app_trace_log("value = %f\n",(battery_value[0]*1.0/battery_value[1])*4.2);
-		osDelay(1000);
     }
 }
 

@@ -80,6 +80,8 @@ uint8_t usb_connect_status = USB_CONNECT_STATUS_DISCONNECTED;
 
 uint16_t battery_value[2] = {4096,4096};
 
+en_Device_Work_Status_t Device_Status = Device_Work_Normal;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -176,6 +178,7 @@ int main(void)
   MX_SPI4_Init();
   MX_ADC1_Init();
   MX_TIM3_Init();
+  MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start(&htim3);
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)battery_value, 2);
@@ -185,14 +188,21 @@ int main(void)
   {
 //    usb_connect_status = USB_CONNECT_STATUS_CONNECTED;
 //    MX_USB_DEVICE_Init();
+      Device_Status = Device_USB_CONNECTED;
+  }
+  task_count = Get_task_Count();
+  if (task_count == 0)
+  {
+  //无任务文件
+      Device_Status = Device_NO_TASK_FIL;
+      while(1);
   }
   app_trace_log("hello!\n");
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
-  MX_FATFS_Init();
   MX_FREERTOS_Init();
-  app_error_init();
+
   
   /* Start scheduler */
   osKernelStart();

@@ -24,10 +24,13 @@ osThreadId audiocontrollerHandle;
 extern EventGroupHandle_t xEventGroup;
 extern QueueHandle_t xQueueLog;
 extern SemaphoreHandle_t xSdioMutex;
-//音乐播放控制器
-__audiodev audiodev;
 
 //*********************************变量声明*****************************
+uint8_t task_count = 0;
+uint8_t cur_task_index = 0;
+
+//音乐播放控制器
+__audiodev audiodev;
 uint32_t wavsize;  //wav数据大小
 #if defined (IIS_DMA_A)
 uint8_t wavrxtxflag=0; //txrx传输状态标识
@@ -366,18 +369,49 @@ void recoder_wav_init(__WaveHeader* wavhead,uint32_t DataFormat,uint32_t AudioFr
  	wavhead->data.ChunkSize=0;			//数据大小,还需要计算
 }
 
-
+//*******************************************************************************
+//获取任务数
+//*******************************************************************************
+uint8_t Get_task_Count(void)
+{
+    DIR recdir;
+    FILINFO fileinfo;
+    if (f_opendir(&recdir,"/0:MUSIC"))
+    {
+        //无任务文件
+    }
+    while(1)
+	{
+		res = f_readdir(&recdir,&fileinfo);
+		if (res != FR_OK)
+		{
+			break;
+		}
+		if (fileinfo.fname[0] == 0)
+		{
+			break;
+		}
+		if(fileinfo.fattrib & AM_DIR)
+		{
+			task_count ++ ;
+			app_trace_log("%s\r\n",fileinfo.fname);
+		}
+	}
+    f_close(&recdir);
+}
 
 //*******************************************************************************
 //获取播放列表 返回音乐文件个数
 //*******************************************************************************
-static uint8_t Get_Song_Count(void)
+static uint8_t Get_Song_Count(uint8_t task_num)
 {
 	DIR recdir;
 	FRESULT res;
 	FILINFO wavfileinfo;
+    uint8_t task_path[40];
 	uint8_t file_count = 0;
-	res = f_opendir(&recdir,"0:/MUSIC");
+    sprintf(task_path,"0:/MUSIC/TASK%c",task_num);
+	res = f_opendir(&recdir,task_path);
 	if (res != FR_OK)
 	{
 		goto error;
@@ -626,6 +660,7 @@ static void Audio_Play_Init(void)
 {
     DIR recdir;
     FRESULT res;
+    FILINFO fileinfo;
     //打开录音文件夹，如果没有创建
     while(f_opendir(&recdir,"0:/RECORD"))
     {
@@ -637,7 +672,6 @@ static void Audio_Play_Init(void)
         }
     }
     f_closedir(&recdir);
-
 
     /*全局变量初始化*/
     //申请播放缓存
@@ -654,8 +688,6 @@ static void Audio_Play_Init(void)
 //    audiodev.wavctrl = (__wavctrl *)pvPortMalloc(sizeof(__wavctrl));
 //    //申请录音文件头
 //    audiodev.wavHeader = (__WaveHeader*)pvPortMalloc(sizeof(__WaveHeader));
-    //获得播放文件数量
-    audiodev.file_count = Get_Song_Count();
     //缓冲播放队列
     audiodev.file_list = pvPortMalloc((audiodev.file_count/8 + 1)*8);
     //初始化判断
@@ -681,6 +713,8 @@ static void Audio_Play_Start(void)
 	uint8_t path[40];
 	//log信息
 	uint8_t log[40];
+    //获得播放文件数量
+    audiodev.file_count = Get_Song_Count();
 /**********************************************************************
 语音播放部分初始化
 ***********************************************************************/
@@ -944,8 +978,7 @@ void AudioController_Task(void const * argument)
             //创建任务记录文件
 			task_log_new_pathname((uint8_t *)log_fil_name);
 			//打开录音文件
-			strcpy(log_path,RECORD_PATH);
-			strcat(log_path,(char*)log_fil_name);
+            sprintf(log_path,"%s/TASK%c-%s",RECORD_PATH,cur_task_index,log_fil_name);
 			res=f_open(log_fil,(const TCHAR*)log_path,FA_CREATE_ALWAYS|FA_WRITE);
 			if (res != FR_OK)
 			{
@@ -972,18 +1005,6 @@ void AudioController_Task(void const * argument)
 			}
             Audio_Play_End();
             app_trace_log("Task Completed\n");
-		}
-		if(xEventGroupValue&EVENTS_PLAY_CANCEL_BIT)
-		{//任务取消
-			sprintf(log,"Task Case");
-			save_task_log(log_fil,log);
-            f_sync(log_fil);
-			res=f_close(log_fil);
-			if (res != FR_OK)
-			{
-				app_trace_log("error:%x ,%s,%d\n",res,__FUNCTION__,__LINE__);
-			}
-            app_trace_log("Task Case\n");
 		}
 		if(xEventGroupValue & EVENTS_PLAY_NEW_SONG_BIT)
 		{//播放下一曲

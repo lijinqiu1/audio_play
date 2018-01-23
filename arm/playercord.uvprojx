@@ -409,6 +409,11 @@
               <FileType>1</FileType>
               <FilePath>..\Usr\display.c</FilePath>
             </File>
+            <File>
+              <FileName>oledfont.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Usr\oledfont.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1239,6 +1244,11 @@
               <FileName>display.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Usr\display.c</FilePath>
+            </File>
+            <File>
+              <FileName>oledfont.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Usr\oledfont.c</FilePath>
             </File>
           </Files>
         </Group>

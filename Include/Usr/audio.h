@@ -112,6 +112,8 @@ typedef __packed struct
     uint8_t      file_index;            //当前文件播放序列
 }__audiodev;
 
+extern uint8_t task_count;
+extern uint8_t cur_task_index;
 void AudioPlay_Task(void const * argument);
 #if defined(PLAY_WITH_LIST)
 #if defined(IIS_DMA_A)

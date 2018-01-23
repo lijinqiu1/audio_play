@@ -159,6 +159,8 @@
 #define EVENTS_RECORD_END_BIT                (1UL << 14UL)
 #define EVENTS_NEW_DAY_BIT                   (1UL << 15UL)
 #define EVENTS_TASK_LOG_CREATE_BIT           (1UL << 16UL)
+#define EVENTS_KEY_UP_BIT                    (1UL << 17UL)
+#define EVENTS_KEY_DOWN_BIT                  (1UL << 18UL)
 
 /* IRQ PRI */
 #define IRQ_PRI_SD_RX_DMA                     0x05
@@ -210,9 +212,17 @@
 #define USB_CONNECT_STATUS_DISCONNECTED       0                      
 #define USB_CONNECT_STATUS_CONNECTED          1
 
+typedef enum device_work_status
+{
+    Device_USB_CONNECTED, //usb连接状态
+    Device_Work_Normal,   //正常工作状态
+    Device_NO_TASK_FIL,   //无任务文件
+}en_Device_Work_Status_t;
+
 extern uint8_t key_work_status;
 extern uint8_t usb_connect_status;
 extern uint16_t battery_value[2];
+extern en_Device_Work_Status_t Device_Status;
 
 void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name);
 
