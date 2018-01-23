@@ -376,6 +376,9 @@ uint8_t Get_task_Count(void)
 {
     DIR recdir;
     FILINFO fileinfo;
+	FRESULT res;
+	uint8_t count = 0;
+	
     if (f_opendir(&recdir,"/0:MUSIC"))
     {
         //无任务文件
@@ -397,7 +400,9 @@ uint8_t Get_task_Count(void)
 			app_trace_log("%s\r\n",fileinfo.fname);
 		}
 	}
-    f_close(&recdir);
+	
+    f_closedir(&recdir);
+	return count;
 }
 
 //*******************************************************************************
@@ -410,8 +415,8 @@ static uint8_t Get_Song_Count(uint8_t task_num)
 	FILINFO wavfileinfo;
     uint8_t task_path[40];
 	uint8_t file_count = 0;
-    sprintf(task_path,"0:/MUSIC/TASK%c",task_num);
-	res = f_opendir(&recdir,task_path);
+    sprintf((char *)task_path,"0:/MUSIC/TASK%d",task_num);
+	res = f_opendir(&recdir,(const TCHAR *)task_path);
 	if (res != FR_OK)
 	{
 		goto error;
@@ -660,7 +665,6 @@ static void Audio_Play_Init(void)
 {
     DIR recdir;
     FRESULT res;
-    FILINFO fileinfo;
     //打开录音文件夹，如果没有创建
     while(f_opendir(&recdir,"0:/RECORD"))
     {
@@ -714,7 +718,7 @@ static void Audio_Play_Start(void)
 	//log信息
 	uint8_t log[40];
     //获得播放文件数量
-    audiodev.file_count = Get_Song_Count();
+    audiodev.file_count = Get_Song_Count(cur_task_index);
 /**********************************************************************
 语音播放部分初始化
 ***********************************************************************/

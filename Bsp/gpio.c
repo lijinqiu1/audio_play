@@ -307,12 +307,12 @@ void prvKeyDelayCallback(TimerHandle_t xTimer)
     		if(GPIO_Pin == KEY_VOL_UP_Pin)
     		{
                 if(HAL_GPIO_ReadPin(KEY_VOL_UP_GPIO_Port,KEY_VOL_UP_Pin))
-    				xEventGroupSetBits(xEventGroup, EVENTS_KEY_UP);
+    				xEventGroupSetBits(xEventGroup, EVENTS_KEY_UP_BIT);
     		}
     		if(GPIO_Pin == KEY_VOL_DOWN_Pin)
     		{
                 if(HAL_GPIO_ReadPin(KEY_VOL_DOWN_GPIO_Port,KEY_VOL_DOWN_Pin))
-    				xEventGroupSetBits(xEventGroup, EVENTS_KEY_DOWN);
+    				xEventGroupSetBits(xEventGroup, EVENTS_KEY_DOWN_BIT);
     		}
     		if(GPIO_Pin == KEY_FUN_Pin)
     		{

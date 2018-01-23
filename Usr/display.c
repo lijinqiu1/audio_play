@@ -8,8 +8,9 @@
 #include "oled.h"
 #include "oledhzfont.h"
 #include "cmsis_os.h"
+#include "audio.h"
 
-
+extern EventGroupHandle_t xEventGroup;
 osThreadId displayprocessHandle;
 
 static void DisPlay_Start(void)
@@ -18,11 +19,11 @@ static void DisPlay_Start(void)
     OLED_ShowCHinese(32, 2, 1, (uint8_t (*)[32])HzSTART);
 }
 
-static void DisPlay_Stop(void)
-{
-    OLED_ShowCHinese(16, 2, 0, (uint8_t (*)[32])HzSTOP);
-    OLED_ShowCHinese(32, 2, 1, (uint8_t (*)[32])HzSTOP);
-}
+//static void DisPlay_Stop(void)
+//{
+//    OLED_ShowCHinese(16, 2, 0, (uint8_t (*)[32])HzSTOP);
+//    OLED_ShowCHinese(32, 2, 1, (uint8_t (*)[32])HzSTOP);
+//}
 
 static void DisPlay_Task(void)
 {
@@ -158,7 +159,7 @@ void Display_Process_Task(void const * argument)
     OLED_Init();
     OLED_Clear();
 	EventBits_t xEventGroupValue;
-	const EventBits_t xBitsToWaitFor = (EVENTS_KEY_UP|EVENTS_KEY_DOWN);
+	const EventBits_t xBitsToWaitFor = (EVENTS_KEY_UP_BIT|EVENTS_KEY_DOWN_BIT);
     while(1)
     {
 //        if(HAL_GPIO_ReadPin(VBUS_DET_GPIO_Port, VBUS_DET_Pin))
@@ -183,7 +184,7 @@ void Display_Process_Task(void const * argument)
                                                pdFALSE,
                                                /* Don't time out. */
                                                1000);
-        if(xEventGro(xEventGroupValue&EVENTS_KEY_UP_BIT)!=0)
+        if((xEventGroupValue&EVENTS_KEY_UP_BIT)!=0)
         {
             cur_task_index ++;
             if (cur_task_index > task_count)
@@ -192,10 +193,10 @@ void Display_Process_Task(void const * argument)
             }
         }
 
-        if(xEventGro(xEventGroupValue&EVENTS_KEY_DOWN_BIT)!=0)
+        if((xEventGroupValue&EVENTS_KEY_DOWN_BIT)!=0)
         {
             cur_task_index --;
-            if (cur_task_index < 0)
+            if (cur_task_index == 0)
             {
                 cur_task_index = task_count;
             }
