@@ -65,6 +65,8 @@
 /* USER CODE BEGIN Includes */
 #include "myiic.h"
 #include "usb_device.h"
+#include "oled.h"
+#include "oledHzfont.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -79,6 +81,8 @@ uint8_t key_work_status = KEY_WORK_STATUS_READY;
 uint8_t usb_connect_status = USB_CONNECT_STATUS_DISCONNECTED;
 
 uint16_t battery_value[2] = {4096,4096};
+
+uint8_t task_play_status = TASK_PLAY_STATUS_PLAYING;
 
 en_Device_Work_Status_t Device_Status = Device_Work_Normal;
 
@@ -148,6 +152,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+	GPIO_InitTypeDef GPIO_InitStruct;
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -178,30 +183,39 @@ int main(void)
   MX_SPI4_Init();
   MX_ADC1_Init();
   MX_TIM3_Init();
-  MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start(&htim3);
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)battery_value, 2);
   IIC_Init();
+  OLED_Init();
+  OLED_Clear();
   //初始化工作状态
   if(HAL_GPIO_ReadPin(VBUS_DET_GPIO_Port, VBUS_DET_Pin) == GPIO_PIN_SET)
   {
-//    usb_connect_status = USB_CONNECT_STATUS_CONNECTED;
-//    MX_USB_DEVICE_Init();
-      Device_Status = Device_USB_CONNECTED;
+		usb_connect_status = USB_CONNECT_STATUS_CONNECTED;
+	    OLED_ShowChar(8,1,'U',16);
+		OLED_ShowCHinese(32, 1, 0, (uint8_t (*)[32])HzUsbMode);
+		OLED_ShowCHinese(8, 3, 1, (uint8_t (*)[32])HzUsbMode);
+		OLED_ShowCHinese(32, 3, 3, (uint8_t (*)[32])HzUsbMode);
+		MX_USB_DEVICE_Init();
+		Device_Status = Device_USB_CONNECTED;
   }
-  task_count = Get_task_Count();
-  if (task_count == 0)
+  else
   {
-  //无任务文件
-      Device_Status = Device_NO_TASK_FIL;
-      while(1);
+	  GPIO_InitStruct.Pin = GPIO_PIN_12;
+	  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+	  GPIO_InitStruct.Pull = GPIO_NOPULL;
+	  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_12,GPIO_PIN_RESET);
   }
+  
   app_trace_log("hello!\n");
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
+  MX_FATFS_Init();
   MX_FREERTOS_Init();
+    //初始化音频播放
 
   
   /* Start scheduler */

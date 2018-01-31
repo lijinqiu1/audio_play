@@ -69,7 +69,7 @@ SemaphoreHandle_t xSdioMutex;
 extern QueueHandle_t xQueueLog;
 
 #if defined(PLAY_WITH_LIST)
-#if defined(IIS_DMA_A)
+#if defined(IIS_DMA_A) || defined(IIS_DMA_B)
 extern osThreadId audioplaywithlistTaskHandle;
 #else
 extern osThreadId audioplaywithlistTxTaskHandle;
@@ -130,7 +130,7 @@ void MX_FREERTOS_Init(void) {
 
   /*录音、播放线程*/
   #if defined(PLAY_WITH_LIST)
-  #if defined(IIS_DMA_A)
+  #if defined(IIS_DMA_A) || defined(IIS_DMA_B)
   osThreadDef(audioplaywithlistTask,AudioPlay_With_List_Task,osPriorityRealtime,0,8192);
   audioplaywithlistTaskHandle = osThreadCreate(osThread(audioplaywithlistTask),NULL);
   #else
@@ -144,7 +144,7 @@ void MX_FREERTOS_Init(void) {
   audioplayTaskHandle = osThreadCreate(osThread(audioplayTask),NULL);
   #endif
   /*音频控制线程*/
-  osThreadDef(audiocontrollerTask,AudioController_Task,osPriorityNormal,0,1024);
+  osThreadDef(audiocontrollerTask,AudioController_Task,osPriorityNormal,0,2048);
   audiocontrollerHandle = osThreadCreate(osThread(audiocontrollerTask),NULL);
   /*log线程*/
   osThreadDef(logrecordTask,Log_Record_Task,osPriorityLow,0,1024);

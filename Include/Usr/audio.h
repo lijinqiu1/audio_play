@@ -99,8 +99,6 @@ typedef __packed struct
 	uint8_t      *i2sbuf1;
 	uint8_t      *i2sbuf2;
 	uint8_t      *tbuf;				    //零时数组,仅在24bit解码的时候需要用到
-	FIL          *file1;				//音频文件指针
-	FIL          *file2;				//音频文件指针
     __wavctrl    wavctrl;               //wav文件描述播放文件使用
     __WaveHeader wavHeader;             //wav文件头录音文件使用
 	uint8_t      status;				//bit0:0,暂停播放;1,继续播放
@@ -108,15 +106,16 @@ typedef __packed struct
 	uint32_t     file_count;
     uint32_t     file_bw;
     uint32_t     wavsize;               //录音文件大小
-    uint8_t      *file_list;
+    uint8_t      file_list[100];
     uint8_t      file_index;            //当前文件播放序列
 }__audiodev;
 
 extern uint8_t task_count;
 extern uint8_t cur_task_index;
 void AudioPlay_Task(void const * argument);
+uint8_t Get_task_Count(void);
 #if defined(PLAY_WITH_LIST)
-#if defined(IIS_DMA_A)
+#if defined(IIS_DMA_A) || defined(IIS_DMA_B)
 void AudioPlay_With_List_Task(void const * argument);
 #else
 void AudioPlay_With_List_Tx_Task(void const * argument);

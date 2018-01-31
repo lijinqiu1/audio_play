@@ -148,12 +148,11 @@
 #define EVENTS_FUN_BLE_PAIR_BIT              (1UL <<  3UL)
 #define EVENTS_FUN_BLE_CHANGE_BIT            (1UL <<  4UL)
 #define EVENTS_FUN_USB_BIT                   (1UL <<  5UL)
-#define EVENTS_FUN_STOP_BIT                  (1UL <<  6UL)
+#define EVENTS_PLAY_STOP_BIT                 (1UL <<  6UL)
 #define EVENTS_PLAY_BIT                      (1UL <<  7UL)
 #define EVENTS_PLAY_END_BIT                  (1UL <<  8UL)
 #define EVENTS_PLAY_AND_RECORD_BIT           (1UL <<  9UL)
 #define EVENTS_PLAY_AND_RECORD_END_BIT       (1UL << 10UL)
-#define EVENTS_PLAY_CANCEL_BIT               (1UL << 11UL)
 #define EVENTS_PLAY_NEW_SONG_BIT             (1UL << 12UL)
 #define EVENTS_RECORD_BIT                    (1UL << 13UL)
 #define EVENTS_RECORD_END_BIT                (1UL << 14UL)
@@ -212,6 +211,9 @@
 #define USB_CONNECT_STATUS_DISCONNECTED       0                      
 #define USB_CONNECT_STATUS_CONNECTED          1
 
+#define TASK_PLAY_STATUS_PLAYING              0
+#define TASK_PLAY_STATUS_PAUSE                1
+
 typedef enum device_work_status
 {
     Device_USB_CONNECTED, //usbÁ¬½Ó×´Ì¬
@@ -220,6 +222,7 @@ typedef enum device_work_status
 }en_Device_Work_Status_t;
 
 extern uint8_t key_work_status;
+extern uint8_t task_play_status;
 extern uint8_t usb_connect_status;
 extern uint16_t battery_value[2];
 extern en_Device_Work_Status_t Device_Status;

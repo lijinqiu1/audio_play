@@ -297,7 +297,7 @@ void prvKeyDelayCallback(TimerHandle_t xTimer)
 #elif defined(F429_ZET6)
 			if(!HAL_GPIO_ReadPin(KEY_WAKE_UP_GPIO_Port,KEY_WAKE_UP_Pin))
 #endif
-				xEventGroupSetBits(xEventGroup,EVENTS_FUN_STOP_BIT);
+				xEventGroupSetBits(xEventGroup,EVENTS_PLAY_STOP_BIT);
 		}
 	}
 	else
