@@ -193,10 +193,10 @@ int main(void)
   if(HAL_GPIO_ReadPin(VBUS_DET_GPIO_Port, VBUS_DET_Pin) == GPIO_PIN_SET)
   {
 		usb_connect_status = USB_CONNECT_STATUS_CONNECTED;
-	    OLED_ShowChar(8,1,'U',16);
+		OLED_ShowChar(12,1,'U',16);
 		OLED_ShowCHinese(32, 1, 0, (uint8_t (*)[32])HzUsbMode);
 		OLED_ShowCHinese(8, 3, 1, (uint8_t (*)[32])HzUsbMode);
-		OLED_ShowCHinese(32, 3, 3, (uint8_t (*)[32])HzUsbMode);
+		OLED_ShowCHinese(32, 3, 2, (uint8_t (*)[32])HzUsbMode);	
 		MX_USB_DEVICE_Init();
 		Device_Status = Device_USB_CONNECTED;
   }

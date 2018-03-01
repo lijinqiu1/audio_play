@@ -82,6 +82,7 @@ static void Display_work_status(RTC_TimeTypeDef tim)
         {
             memcpy((char *)&last_tim,(char *)&tim,sizeof(RTC_TimeTypeDef));
             OLED_Clear();
+			Display_Time(tim);
         }
         else
         {
@@ -199,6 +200,10 @@ void Display_Process_Task(void const * argument)
         if(HAL_GPIO_ReadPin(VBUS_DET_GPIO_Port, VBUS_DET_Pin))
         {
             usb_connect_status = USB_CONNECT_STATUS_CONNECTED;
+			if (Device_Status == Device_USB_CONNECTED)
+			{
+				continue;
+			}
         }
         else
         {
@@ -207,11 +212,12 @@ void Display_Process_Task(void const * argument)
 			{
 				Device_Status = Device_Work_Normal;
 				USBD_DeInit(&hUsbDeviceFS);
-				  GPIO_InitStruct.Pin = GPIO_PIN_12;
-				  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-				  GPIO_InitStruct.Pull = GPIO_NOPULL;
-				  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-				  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_12,GPIO_PIN_RESET);
+				GPIO_InitStruct.Pin = GPIO_PIN_12;
+				GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+				GPIO_InitStruct.Pull = GPIO_NOPULL;
+				HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+				HAL_GPIO_WritePin(GPIOA,GPIO_PIN_12,GPIO_PIN_RESET);
+				OLED_Clear();
 			}
         }
         //¶ÂÈûÄ£Ê½
